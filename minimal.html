@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <script src=ahx.js></script>
+    
+</head>
+
+<body style="background: #999">
+Minimal AXH player
+
+<hr />
+
+<button type=button id=btnPlay>Click to play</button>
+    
+</body>
+
+<script>
+
+var ahxMaster = AHXMaster(); // create a new AHX Replayer; only create one!
+var ahxSong = new AHXSong();
+    
+function test(){
+    ahxSong.LoadSong('ahx/Downstream.ahx', function() { // asynchronously load a AHX song into memory
+        ahxMaster.Play(ahxSong); // start playing
+        // continue init your demo here
+    });  
+}
+
+const btn=document.getElementById('btnPlay');
+btn.onclick=function(){
+    test();
+}
+
+</script>

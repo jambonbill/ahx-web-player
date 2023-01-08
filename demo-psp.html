@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>PSP-AHX player</title>
+    <script src=js/ahx.js></script>
+    <script src="http://editor.petscii.localhost/js/psp-lib.min.js"></script>
+</head>
+
+<body style="background: #999">
+<h1>AHX</h1> <br />
+<canvas id=screen></canvas>
+
+
+<hr />
+<button type=button id=btnPlay0>Play 0</button>
+<button type=button id=btnPlay1>Play 1</button>
+<button type=button id=btnPlay2>Play 2</button>
+<button type=button id=btnPlay3>Play 3</button>
+<button type=button id=btnStop>Stop</button>
+
+<hr />
+
+<img src="img/ahx_01.gif">
+<img src="img/ahx_02.gif">
+
+    
+</body>
+
+<script>
+PSPinit({screen:document.getElementById('screen')});
+setFps(60);
+resize(48,27);//FHD-able
+//resize(80,45);//FHD-able
+
+
+function main(){
+	frame().clear();
+	let A=ascii();
+	//Show SONG Title
+	line(0,0,48,0,160,1);
+    A.pos(0,0).invert().write(AHX.songTitle().toUpperCase());
+	//Current Position (Progress Bar)
+	
+	//let max= AHX.Song.PositionNr-1;
+	//let current=AHX.Master.Output.Player.PosNr;
+	A.invert(false);
+	A.pos(0,1).write("POS:").write(AHX.Master.Output.Player.PosNr);
+	A.pos(0,2).write("LEN:").write(AHX.Song.PositionNr-1);
+	A.pos(0,3).write("RES:").write(0);
+	A.pos(0,4).write("TRL:").write(AHX.Song.TrackLength);
+	A.pos(0,5).write("NOTENR:").write(AHX.Master.Output.Player.NoteNr);
+	
+	//WebAHX.Master.Output.Player.NoteNr = 0;//pattern position (set to 0)
+    //WebAHX.Master.Output.Player.PosNr = x;//(set to x)
+}
+
+hook(main);
+
+var AHX={
+
+};
+
+AHX.init = function() {
+	console.log('AHX.init')
+    this.Master = AHXMaster();
+    this.Song = new AHXSong();
+    /*
+    this.load=function(filename){
+    	console.log('load',filename);
+		this.Song.LoadSong(filename, function() { // asynchronously load a AHX song into memory
+        this.Master.Play(this.Song); // start playing
+        // continue init your demo here
+    	});
+    }
+	*/
+};
+
+AHX.play=function(){
+	console.log("play");
+	this.Master.Output.pos = [0,0,0,0];
+	this.Master.Play(this.Song);;
+}
+
+AHX.stop=function(){
+	console.log("stop");
+	this.Master.Stop();
+}
+
+AHX.songTitle=function(){
+	return this.Song.Name.split('\0')[0];
+}
+
+AHX.init();	
+
+AHX.songInfo=function(){	
+	console.log('songInfo()',this.Song.Instruments);
+	//AHX.Song.Instruments[0].Name
+}
+
+//AHX.Song.Positions.
+//AHX.Song.Tracks
+
+//${AHX.Song.PositionNr} 
+//${AHX.Song.TrackLength} 
+//${AHX.Song.SizeBytes}
+//${AHX.Song.Instruments[num++].Name
+
+
+    
+const btn0=document.getElementById('btnPlay0');
+const btn1=document.getElementById('btnPlay1');
+const btn2=document.getElementById('btnPlay2');
+const btn3=document.getElementById('btnPlay3');
+const btnStop=document.getElementById('btnStop');
+
+btn0.onclick=function(){
+	AHX.Song = new AHXSong();
+    AHX.Song.LoadSong('ahx/Downstream.ahx', function() { // asynchronously load a AHX song into memory
+        AHX.play();
+        // continue init your demo here
+        AHX.songInfo();
+    });
+    //AHX.load('ahx/Downstream.ahx');
+}
+
+btn1.onclick=function(){
+    AHX.Song = new AHXSong();
+    AHX.Song.LoadSong('ahx/Doh/dreams-odyssee.ahx', function() { // asynchronously load a AHX song into memory
+       AHX.play(); // start playing
+        // continue init your demo here
+        AHX.songInfo();
+    });
+    //AHX.load('ahx/Downstream.ahx');
+}
+
+btn2.onclick=function(){
+    AHX.Song = new AHXSong();    
+    AHX.Song.LoadSong('ahx/MortimerTwang/amanda.ahx', function() { // asynchronously load a AHX song into memory
+        AHX.play();// start playing
+        AHX.songInfo();        
+    });
+}
+
+btn3.onclick=function(){
+    AHX.Song = new AHXSong();    
+    AHX.Song.LoadSong('ahx/Hoffman/GET TO THE CHOPPER!.ahx', function() { // asynchronously load a AHX song into memory
+        AHX.play();// start playing
+        AHX.songInfo();        
+    });
+}
+
+btnStop.onclick=()=>AHX.stop();
+
+</script>
