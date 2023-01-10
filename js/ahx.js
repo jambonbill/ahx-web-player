@@ -82,6 +82,7 @@ function AHXMaster() {
 
 // new AHXSong()
 function AHXSong() {
+
 	this.Name = '';
 	this.Restart = 0;
 	this.PositionNr = 0;
@@ -127,25 +128,45 @@ function AHXSong() {
 	}
 	
 	this.InitSong = function(stream) { // stream = dataType()
-		stream.pos = 3;
+		
+		console.clear();
+		
+		stream.pos = 0;
+		let test=stream.readStringAt(0);		
+		console.log("THX?",test);
+
+		stream.pos = 3;//skip first 3 bytes
 		this.Revision = stream.readByte();
-		var SBPtr = 14;
+		console.log('Revision',Revision);
+
+		
 		
 		// Header ////////////////////////////////////////////
 		// Songname
 		var NamePtr = stream.readShort();
-		this.Name = stream.readStringAt(NamePtr);
-		NamePtr += this.Name.length + 1;
-		this.SpeedMultiplier = ((stream.readByteAt(6)>>5)&3)+1;
 		
+		console.log('NamePtr',NamePtr);//debug
+
+		this.Name = stream.readStringAt(NamePtr);
+		console.log('Name',this.Name);
+
+		NamePtr += this.Name.length + 1;
+
+		this.SpeedMultiplier = ((stream.readByteAt(6)>>5)&3)+1;
+		console.log('SpeedMultiplier',this.SpeedMultiplier);
 		this.PositionNr = ((stream.readByteAt(6)&0xf)<<8) | stream.readByteAt(7);
+		console.log('PositionNr',this.PositionNr);
 		this.Restart = (stream.readByteAt(8)<<8) | stream.readByteAt(9);
 		this.TrackLength = stream.readByteAt(10);
+		console.log('TrackLength',this.TrackLength);
 		this.TrackNr = stream.readByteAt(11);
+		console.log('TrackNr',this.TrackNr);
 		this.InstrumentNr = stream.readByteAt(12);
+		console.log('InstrumentNr',this.InstrumentNr);
 		this.SubsongNr = stream.readByteAt(13);
 		
 		// Subsongs //////////////////////////////////////////
+		var SBPtr = 14;//Subsong pointer
 		for(var i = 0; i < this.SubsongNr; i++) {
 			this.Subsongs.push((stream.readByteAt(SBPtr+0)<<8)|stream.readByteAt(SBPtr+1));
 			SBPtr += 2;
@@ -1343,15 +1364,21 @@ function AHXMasterWebKit(output) {
 	this.AudioNode = null;
 	
 	this.Play = function(song) { // song = AHXSong()
-		this.Output.Player.InitSong(song);
-		this.Output.Player.InitSubsong(0);
+		
+		if(song){
+			this.Output.Player.InitSong(song);
+			this.Output.Player.InitSubsong(0);
+		}
+		
 		if(!this.AudioContext) 
 			this.AudioContext = new AudioContext();
+		
 		this.Output.Init(this.AudioContext.sampleRate, 16);
 		//this.bufferSize = 8192;
 		this.bufferSize = 2048;//Sticky ! (jambon chan)
 		this.bufferFull = 0;
 		this.bufferOffset = 0;
+		
 		if(this.AudioNode) 
 			this.AudioNode.disconnect();
 		this.AudioNode = this.AudioContext.createScriptProcessor(this.bufferSize);
@@ -1404,7 +1431,7 @@ function AHXMasterWebKit(output) {
 	this.reset();
 	return this;
 }
-
+/*
 function AHXMasterMoz(output) {
 	function AudioDataDestination(sampleRate, readFn) {
 	  // Initialize the audio output.
@@ -1456,8 +1483,12 @@ function AHXMasterMoz(output) {
 	this.Output = output || AHXOutput();
 	
 	this.Play = function(song) { // song = AHXSong()
-		this.Output.Player.InitSong(song);
-		this.Output.Player.InitSubsong(0);
+		
+		if(song){
+			this.Output.Player.InitSong(song);
+			this.Output.Player.InitSubsong(0);	
+		}
+		
 		this.sampleRate = 44100;
 		this.bufferFull = 0;
 		this.bufferOffset = 0;
@@ -1524,6 +1555,7 @@ function AHXMasterNull() {
 
 	return this;
 }
+*/
 
 // this class was taken from CODEF project
 function dataType(){
