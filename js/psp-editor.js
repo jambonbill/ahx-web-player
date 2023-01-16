@@ -12,7 +12,7 @@ function main(){
     line(0,1,48,1,119,15);
     
     A.pos(0,0).invert().write(AHX.songTitle().toUpperCase(),1);
-	A.pos(44,0).write("AHX.",1);
+	//A.pos(44,0).write("AHX.",1);
     //Current Position (Progress Bar)	
 	//let max= AHX.Song.PositionNr-1;
 	//let current=AHX.Master.Output.Player.PosNr;
@@ -68,19 +68,21 @@ function displaySong(){//show the main sequences (not the pattern)
             A.write("-------  ",11);
             A.write("-------",11);
             continue;
-        }
-        
+        }       
         
 
         if(i==3)A.color(1);else A.color(15);
         
-        
-        
-
-        A.pos(9,y).write(String(prow).padStart(3, '0'));
-        A.put(66);// |
+        A.pos(9,y).write(String(prow).padStart(3, '0'),11);
+        //A.put(32);// space
         
         for(let x=0;x<4;x++){
+            if(x==AHX.cursor.track){
+                A.put(66,1);// space
+            }else{
+                A.put(32);// space
+            }
+
             A.write(String(row.Track[x]).padStart(3, '0'));   
             if(row.Transpose[x]>0){
                 A.put(32);// Space
@@ -88,12 +90,13 @@ function displaySong(){//show the main sequences (not the pattern)
                 A.write(String(row.Transpose[x]).padStart(2, '0'));
             }else if(row.Transpose[x]<0){
                 A.put(32);// Space
-                A.write(String(row.Transpose[x]).padStart(2, '0'));
+                A.put(45);// MINUS
+                A.write(String(Math.abs(row.Transpose[x])).padStart(2, '0'));
             }else{
                 //no transpose value
                 A.write(" ---");
             }
-            A.write("  ");
+            A.write(" ");
         }
     }
 }
@@ -124,11 +127,16 @@ function displayPatterns()
     let row=AHX.Song.Positions[pos];
     if(!row)return;
     //Show pattern number
-    A.pos(13,10)
+    A.pos(12,10)
     for(let x=0;x<4;x++){
+        if(x==AHX.cursor.track){
+            A.put(233,1);//Triangle. show Current Track
+        }else{
+            A.write(" ");
+        }
         A.write(String(row.Track[x]).padStart(3, '0'),1); 
-        A.write("-----"); 
-        A.write(" "); 
+        A.write("     ");
+         
     }
 
     // Pattern position //
@@ -137,7 +145,7 @@ function displayPatterns()
     for(let i=0;i<16;i++){
         let color=null;
         let y=i+11;
-        A.pos(9,y).write(String(i).padStart(3, '0'));
+        A.pos(9,y).write(String(i).padStart(3, '0'),11);
         
         if(nr==i)color=1;
         //A.write(" ");

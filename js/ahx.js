@@ -96,9 +96,10 @@ function AHXSong() {
 	this.Tracks = [];
 	this.Instruments = [];
 	this.Subsongs = [];
-
+	
 	this.LoadSong = function(url, completionHandler) {
 		function loadFile(sURL, fCallback) {
+			document.title=sURL;
 			var oXHR = new XMLHttpRequest();
 			oXHR.onreadystatechange = function() {
 				if (oXHR.readyState === 4) { fCallback(oXHR); }
@@ -110,7 +111,7 @@ function AHXSong() {
 			}catch(err){}
 		}
 
-		var Song = this;
+		var Song = this;//?
 
 		loadFile(url, function(xhr) {
 			var t = xhr.responseText || "" ;
@@ -129,15 +130,15 @@ function AHXSong() {
 	
 	this.InitSong = function(stream) { // stream = dataType()
 		
-		console.clear();
+		//console.clear();
 		
 		stream.pos = 0;
 		let test=stream.readStringAt(0);		
-		console.log("THX?",test);
+		//console.log("THX?",test);
 
 		stream.pos = 3;//skip first 3 bytes
 		this.Revision = stream.readByte();
-		console.log('Revision',Revision);
+		//console.log('Revision',Revision);
 
 		
 		
@@ -145,24 +146,26 @@ function AHXSong() {
 		// Songname
 		var NamePtr = stream.readShort();
 		
-		console.log('NamePtr',NamePtr);//debug
+		//console.log('NamePtr',NamePtr);//debug
 
 		this.Name = stream.readStringAt(NamePtr);
-		console.log('Name',this.Name);
+		//console.log('Name',this.Name);
 
 		NamePtr += this.Name.length + 1;
 
 		this.SpeedMultiplier = ((stream.readByteAt(6)>>5)&3)+1;
-		console.log('SpeedMultiplier',this.SpeedMultiplier);
+		//console.log('SpeedMultiplier',this.SpeedMultiplier);
+		
 		this.PositionNr = ((stream.readByteAt(6)&0xf)<<8) | stream.readByteAt(7);
-		console.log('PositionNr',this.PositionNr);
+		//console.log('PositionNr',this.PositionNr);
+		
 		this.Restart = (stream.readByteAt(8)<<8) | stream.readByteAt(9);
 		this.TrackLength = stream.readByteAt(10);
-		console.log('TrackLength',this.TrackLength);
+		//console.log('TrackLength',this.TrackLength);
 		this.TrackNr = stream.readByteAt(11);
-		console.log('TrackNr',this.TrackNr);
+		//console.log('TrackNr',this.TrackNr);
 		this.InstrumentNr = stream.readByteAt(12);
-		console.log('InstrumentNr',this.InstrumentNr);
+		//console.log('InstrumentNr',this.InstrumentNr);
 		this.SubsongNr = stream.readByteAt(13);
 		
 		// Subsongs //////////////////////////////////////////
@@ -1285,7 +1288,7 @@ function AHXPlayer(waves) {
 			}
 		}, // PListCommandParse
 		
-		VoiceOnOff: function(Voice, OnOff) {
+		VoiceOnOff: function(Voice, OnOff) {//MUTE
 			if(Voice < 0 || Voice > 3) return;
 			this.Voices[Voice].TrackOn = OnOff;
 		} // VoiceOnOff
@@ -1309,7 +1312,9 @@ function AHXOutput(player) {
 		MixChunk: function(NrSamples, mb) {
 			var dummy = 0;
 			for(var v = 0; v < 4; v++) {
+				
 				if(this.Player.Voices[v].VoiceVolume == 0) continue;
+				
 				var freq = 3579545.25 / this.Player.Voices[v].VoicePeriod; // #define Period2Freq(period) (3579545.25f / (period))
 				var delta = Math.floor(freq * (1 << 16) / this.Frequency);
 				var samples_to_mix = NrSamples;
