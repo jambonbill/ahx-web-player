@@ -33,107 +33,22 @@ Song:
 <button type=button id=btnNew>New</button>
 <button type=button id=btnClear>Clear all</button>
 <button type=button id=btnTracklength>Tracklength</button>
+<button type=button id=btnAddRow>Add Row</button>
 
 </body>
 
 <script>
-var AHX={};
-
-AHX.cursor={
-    page:0,//0.main - 1.editor
-    track:0,//0-3
-    pos:0,//songpos
-    patpo:0,//pattern pos
-    instnum:0,//instrument(editor) number
-    
-    pageToggle:function(){
-        //console.log('pageToggle');
-        this.page++;
-        if(this.page>1)this.page=0;
-    },
-    
-    up:function(){
-        //move cursor up
-        if(AHX.Master.Output.Player.NoteNr>0)AHX.Master.Output.Player.NoteNr--;
-    },
-    
-    down:function(){
-        //move cursor down
-        if(AHX.Master.Output.Player.NoteNr<32)AHX.Master.Output.Player.NoteNr++;
-    },
-    left:function(){
-        this.track--;
-        if(this.track<0)this.track=3;
-    },
-    right:function(){
-        this.track++;
-        if(this.track>3)this.track=0;
-    },
-    pageUp:function(){
-        //Pos--
-        if(AHX.Master.Output.Player.PosNr>0)AHX.Master.Output.Player.PosNr--;
-    },
-    pageDown:function(){
-        //Pos++
-        if(AHX.Master.Output.Player.PosNr<AHX.Song.Positions.length-1){
-            AHX.Master.Output.Player.PosNr++;
-        }
-    }
-}
-
-AHX.init = function() {
-	console.log('AHX.init')
-    this.Master = AHXMaster();
-    this.Song = new AHXSong();
-};
-
-AHX.newProject=function(){
-    console.log('newProject()');
-    //this.Master = AHXMaster();
-    //this.Song = new AHXSong();  
-}
-
-AHX.play=function(){
-	console.log("play", this);
-	//this.Master.Output.pos = [0,0,0,0];
-	this.Master.Play(this.Song);
-}
-
-AHX.stop=function(){
-	console.log("stop");
-	this.Master.Stop();
-}
-
-AHX.songPop=function(){
-    AHX.Song.Positions.pop();
-    AHX.Song.PositionNr=AHX.Song.Positions.length;   
-}
-
-AHX.songTitle=function(){
-	return this.Song.Name.split('\0')[0];
-}
-
-AHX.init();	
-
-AHX.songInfo=function(){	
-    console.clear();
-	console.log('songInfo()',this.Song.Instruments);
-	//AHX.Song.Instruments[0].Name
-    this.Song.Instruments.forEach((ins,i)=>{
-        console.log(i,ins.Name,ins.Name.length);
-    });
-}
-
-    
 const btn0=document.getElementById('btnPlay0');
 const btn1=document.getElementById('btnPlay1');
 const btn2=document.getElementById('btnPlay2');
 const btn3=document.getElementById('btnPlay3');
 const btn4=document.getElementById('btnPlay4');
 const btnShuffle=document.getElementById('btnShuffle');
-
 const btnPlay=document.getElementById('btnPlay');
 const btnStop=document.getElementById('btnStop');
+
+//Song
+const btnAddRow=document.getElementById('btnAddRow');
 
 btn0.onclick=function(){
 	AHX.Song = new AHXSong();
@@ -165,14 +80,29 @@ btnShuffle.onclick=()=>shuffle();
 
 btnPlay.onclick=()=>AHX.Master.Play();
 btnStop.onclick=()=>AHX.stop();
+
 btnNew.onclick=()=>AHX.newProject();
+
 btnClear.onclick=()=>{
-    console.log('clear');
+    console.log('Clear All');
     AHX.stop();
     //AHX.Song.Positions=[];
-    //AHX.Song.Positions.push({Tracks:[0,0,0,0],Transpose:[0,0,0,0]});
-    AHX.Song.PositionNr=1;
+    AHX.Song.Positions.pop();
+    AHX.Song.PositionNr=AHX.Song.Positions.length;//ReSet song size 'counter'
+    AHX.Master.Output.Player.PosNr=0;//Set curent song pos to 0 (just in case)
+    AHX.Song.Restart=0;//just in case
 };
+
+btnAddRow.onClick=()=>{
+    console.log("Add Row");
+    var Pos = AHXPosition();
+    for(let j = 0; j < 4; j++) {
+        Pos.Track.push(0);
+        Pos.Transpose.push(0);
+    }
+    AHX.Song.Positions.push(Pos);
+    AHX.Song.PositionNr=AHX.Song.Positions.length;
+}
 
 async function shuffle() {
 
@@ -199,9 +129,11 @@ async function shuffle() {
     });
 }
 
-shuffle();
+//shuffle();
 </script>
 
+<script type="text/javascript" src="js/psp-ahx.js"></script>
 <script type="text/javascript" src="js/psp-editor.instruments.js"></script>
+<script type="text/javascript" src="js/psp-editor.phrase.js"></script>
 <script type="text/javascript" src="js/psp-editor.keyboard.js"></script>
 <script type="text/javascript" src="js/psp-editor.js"></script>

@@ -31,7 +31,12 @@ function main(){
     //Main 
     switch(AHX.cursor.page){
         
+        
         case 1:
+            phraseEditor();
+            break;
+
+        case 2:
             instrumentEditor();
             break;
         
@@ -56,6 +61,7 @@ function displaySong(){//show the main sequences (not the pattern)
     //like "023|016-00 018-00 007-00 005-00"
     //like "024|016-00 018-00 007-00 005-00"
     let pos=AHX.Master.Output.Player.PosNr;
+    
     for(let i=0;i<7;i++){
         let prow=pos+i-3;//row preview
         let row=AHX.Song.Positions[prow];
@@ -73,7 +79,13 @@ function displaySong(){//show the main sequences (not the pattern)
 
         if(i==3)A.color(1);else A.color(15);
         
-        A.pos(9,y).write(String(prow).padStart(3, '0'),11);
+        if(pos==prow){
+            A.pos(9,y).write(String(prow).padStart(3, '0'), 1);
+        }else{
+            A.pos(9,y).write(String(prow).padStart(3, '0'),11);    
+        }
+        
+        
         //A.put(32);// space
         
         for(let x=0;x<4;x++){
