@@ -13,7 +13,7 @@ var initKeyboard=function(){
 
 		var c = ev.which;
 		
-		//console.log(c);
+		//console.log("Key",c);
 
 		_pressedKeys[c] = true;//capture special keys
 		//pressedKeys(_pressedKeys);//crappy but heh
@@ -23,41 +23,15 @@ var initKeyboard=function(){
 
 
 		// Function keys //
-		
+		/*
 		if(c==112){//F1
-			AHX.Master.Play()
 		}
 
 		if(c==113){//F2
-			AHX.Master.Play()
 		}	
-
+		*/
+	
 		if(c==116)return;//F5
-
-		if (c==117) {//F6 - duplicate frame
-			//
-		}
-
-		if(c==118){//F7 - new empty frame
-			//
-		}
-
-		if (c===119) {
-			console.log('F8');
-		}
-
-		if(c==120){//F9 - PNG
-			//
-		}
-
-		if (c==121) {//F10 - GIF
-			//
-		}
-
-		if(c==122){//F11
-			//
-		}
-
 		if(c==123)return;//F12
 
 		ev.preventDefault();
@@ -96,16 +70,20 @@ var initKeyboard=function(){
 
 		switch(c){//Other keyboard shortcuts
 
+			case 13://ENTREE
+				AHX.Editor.play();
+				break;
+
 			case 20:// Capslock
 				break;
 		
 			case 27://ESC
-				AHX.stop()
+				AHX.Editor.stop()
 				break;
 		
 			case 32:
 				//Toggle Play|Stop
-				AHX.Master.Play();
+				AHX.Editor.play();
 				break;
 
 

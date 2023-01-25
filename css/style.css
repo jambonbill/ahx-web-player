@@ -1,0 +1,14 @@
+body{
+    overflow: hidden;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -o-crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+    -webkit-font-smoothing: none;
+    background: #666;
+}
+
+canvas#screen{
+    width:1280px;   
+}

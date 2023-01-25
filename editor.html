@@ -5,135 +5,54 @@
     <title>PSP-AHX Editor</title>
     <script src=js/ahx.js></script>
     <script src="http://editor.petscii.localhost/js/psp-lib.js"></script>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<style>
-canvas#screen{
-    width:768px;   
-}
-</style>
-<body style="background: #666">
+
+<body>
 <canvas id=screen></canvas>
 <hr />
 File:
-<button type=button id=btnPlay0>0</button>
-<button type=button id=btnPlay1>1</button>
-<button type=button id=btnPlay2>2</button>
-<button type=button id=btnPlay3>3</button>
-<button type=button id=btnPlay4>4</button>
+<button type=button id=btn0>0</button>
+<button type=button id=btn1>1</button>
+<button type=button id=btn2>2</button>
+<button type=button id=btn3>3</button>
+<button type=button id=btn4>4</button>
 <button type=button id=btnShuffle>shuffle</button>
 
 <hr />
-
+<!--
 Transport:
 <button type=button id=btnPlay>AHX.Master.Play()</button>
 <button type=button id=btnStop>AHX.Master.Stop()</button>
 <hr />
+-->
 
 Song:
 <button type=button id=btnNew>New</button>
 <button type=button id=btnClear>Clear all</button>
 <button type=button id=btnTracklength>Tracklength</button>
 <button type=button id=btnAddRow>Add Row</button>
+<button type=button id=btnPopRow>Pop Row</button>
+<hr />
+
+Phrase:
+<button type=button id=btnPhraseNew>New phrase</button>
+<hr />
+
+Instrument:
+<button type=button id=btnInstrAdd>Add instrument</button>
+<button type=button id=btnInstrClear>Clear instrument</button>
+<hr />
+
+<button type=button id=btnFullScreen>FullScreen</button>
+
 
 </body>
 
-<script>
-const btn0=document.getElementById('btnPlay0');
-const btn1=document.getElementById('btnPlay1');
-const btn2=document.getElementById('btnPlay2');
-const btn3=document.getElementById('btnPlay3');
-const btn4=document.getElementById('btnPlay4');
-const btnShuffle=document.getElementById('btnShuffle');
-const btnPlay=document.getElementById('btnPlay');
-const btnStop=document.getElementById('btnStop');
 
-//Song
-const btnAddRow=document.getElementById('btnAddRow');
-
-btn0.onclick=function(){
-	AHX.Song = new AHXSong();
-    AHX.Song.LoadSong('ahx/disissid4/1.ahx', ()=>AHX.play());
-}
-
-btn1.onclick=function(){
-    AHX.Song = new AHXSong();
-    AHX.Song.LoadSong('ahx/Doh/dreams-odyssee.ahx', ()=>AHX.play());
-    
-}
-
-btn2.onclick=function(){
-    AHX.Song = new AHXSong();    
-    AHX.Song.LoadSong('ahx/MortimerTwang/amanda.ahx', ()=>AHX.play());
-}
-
-btn3.onclick=function(){
-    AHX.Song = new AHXSong();    
-    AHX.Song.LoadSong('ahx/Hoffman/GET TO THE CHOPPER!.ahx', ()=>AHX.play());
-}
-
-btn4.onclick=function(){
-    AHX.Song = new AHXSong();    
-    AHX.Song.LoadSong('ahx/JazzCat/rainmaking.ahx',()=>AHX.play());
-}
-
-btnShuffle.onclick=()=>shuffle();
-
-btnPlay.onclick=()=>AHX.Master.Play();
-btnStop.onclick=()=>AHX.stop();
-
-btnNew.onclick=()=>AHX.newProject();
-
-btnClear.onclick=()=>{
-    console.log('Clear All');
-    AHX.stop();
-    //AHX.Song.Positions=[];
-    AHX.Song.Positions.pop();
-    AHX.Song.PositionNr=AHX.Song.Positions.length;//ReSet song size 'counter'
-    AHX.Master.Output.Player.PosNr=0;//Set curent song pos to 0 (just in case)
-    AHX.Song.Restart=0;//just in case
-};
-
-btnAddRow.onClick=()=>{
-    console.log("Add Row");
-    var Pos = AHXPosition();
-    for(let j = 0; j < 4; j++) {
-        Pos.Track.push(0);
-        Pos.Transpose.push(0);
-    }
-    AHX.Song.Positions.push(Pos);
-    AHX.Song.PositionNr=AHX.Song.Positions.length;
-}
-
-async function shuffle() {
-
-    //https://twitter.com/Steve8708/status/1612907638957932544
-    /*
-    const url=new URL('https://builder.io')
-    const url=new URL('/ctrl.php', 'https://builder.io')
-    url.searchParams.set("do","fo");
-    const res=await fetch(url);
-    */
-
-    //const currentUrl=new URL(location.href);
-
-  const response = await fetch('shuffle.php');
-  const json = await response.json();
-  console.log('shuffle()', json.filename); 
-  // logs [{ name: 'Joker'}, { name: 'Batman' }]
-  // 
-  AHX.Song = new AHXSong();
-    AHX.Song.LoadSong(json.filename, function() { // asynchronously load a AHX song into memory
-        //AHX.play();
-        console.log("Loaded and ready to play!",AHX.Song);
-        AHX.Master.Play(AHX.Song);
-    });
-}
-
-//shuffle();
-</script>
-
-<script type="text/javascript" src="js/psp-ahx.js"></script>
+<script type="text/javascript" src="js/ahx.editor.js"></script>
 <script type="text/javascript" src="js/psp-editor.instruments.js"></script>
 <script type="text/javascript" src="js/psp-editor.phrase.js"></script>
 <script type="text/javascript" src="js/psp-editor.keyboard.js"></script>
 <script type="text/javascript" src="js/psp-editor.js"></script>
+<script type="text/javascript" src="js/buttons.js"></script>

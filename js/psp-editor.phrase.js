@@ -1,19 +1,31 @@
 
 
+
 function phraseEditor(){
     
     frame().clear();
     //Instrument Editor
-    let A=ascii().color(11);
+    let A=ascii().color(12);
     
     line(0,0,48,0,160,1);
     line(0,1,48,1,119,15);
     
     let pnum=AHX.cursor.phrasenum;
 
-    A.pos(0,0).invert().write("PHRASE #"+pnum,1).write("/" + AHX.Song.Tracks.length, 15);
+    A.pos(0,0).invert().write("PHRASE #"+pnum,1).write("/" + (AHX.Song.Tracks.length-1), 15);
+    
+    //Current SONG Position 
+    A.pos(42,0).write(String(AHX.Master.Output.Player.PosNr).padStart(3,'0')+".").write(AHX.Master.Output.Player.NoteNr);
+
+
     A.invert(false);
 
+    //MINI MENU
+    A.pos(1,2).write("POS").write(String(AHX.Master.Output.Player.PosNr).padStart(3, ' '),1);
+    A.pos(1,3).write("LEN").write(String(AHX.Song.PositionNr-1).padStart(3, ' '));
+    A.pos(1,4).write("RES").write(String(AHX.Song.Restart).padStart(3, ' '));
+    A.pos(1,5).write("TRL").write(String(AHX.Song.TrackLength).padStart(3, ' '));
+    
     // Pattern position //
     let nr=AHX.Master.Output.Player.NoteNr;
     let TRL=AHX.Song.TrackLength;
@@ -22,7 +34,13 @@ function phraseEditor(){
         
         let color=null;
         let y=i+2;
-        A.pos(9,y).write(String(i).padStart(3, '0'),11);
+        
+        if (nr==i) {
+            //highlight current row
+            A.pos(9,y).write(String(i).padStart(3, '0'), 1);
+        }else{
+            A.pos(9,y).write(String(i).padStart(3, '0'),11);
+        }
         
         if(nr==i)color=1;
 

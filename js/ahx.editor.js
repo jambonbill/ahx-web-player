@@ -1,12 +1,48 @@
+//Jambon Experiments to make a usable AHX Editor (sort of)
 var AHX={};
 
+/* 
+AHX Pages :
+--------------
+0 - Splash
+1 - Config
+2 - Main/Song
+3 - Phrase
+4 - Instrument - Think instrument manager !
+5 - Save
+6 - Load / Diskop
+*/
+
+AHX.Editor={
+    page:0,
+    col:0,
+    row:0,
+    play:function(){
+        //console.log("play", this);
+        //this.Master.Output.pos = [0,0,0,0];
+        AHX.Master.Play(AHX.Song);
+    },
+    stop:function(){
+        console.log("stop");
+        AHX.Master.Stop();
+    }
+}
+
+//This is 
+AHX.Nav={}
+//Editor ?
+//AHX.Ed={}
+
 AHX.cursor={
+    
     page:0,// 0=>main - 1=>phrase 2=>instrument
     track:0,// 0-3
+    
     pos:0,// Songpos
     patpo:0,// Pattern pos
+    
     phrasenum:0,//current phrase (phrase Editor)
-    instnum:0,//Instrument(editor) number
+    instnum:1,//Instrument(editor) number. Zero do not exist here.
     
     pageToggle:function(){
         //console.log('pageToggle');
@@ -33,12 +69,38 @@ AHX.cursor={
     },
     pageUp:function(){
         //Pos--
-        if(AHX.Master.Output.Player.PosNr>0)AHX.Master.Output.Player.PosNr--;
+        switch (this.page) {
+            case 0://main
+                if(AHX.Master.Output.Player.PosNr>0)AHX.Master.Output.Player.PosNr--;
+                break;
+            
+            case 1://phrase
+                if(this.phrasenum>0)this.phrasenum--;
+                break;
+            
+            case 2://inst
+                //if(this.instnum>0)this.instnum--;
+                if(this.instnum>1)this.instnum--;//no zero
+                break;
+        }
     },
     pageDown:function(){
-        //Pos++
-        if(AHX.Master.Output.Player.PosNr<AHX.Song.Positions.length-1){
-            AHX.Master.Output.Player.PosNr++;
+        switch (this.page) {
+            
+            case 0://main
+                if(AHX.Master.Output.Player.PosNr<AHX.Song.Positions.length-1){
+                    AHX.Master.Output.Player.PosNr++;
+                }
+                break;
+            
+            case 1:
+                if(this.phrasenum<AHX.Song.Tracks.length-1)this.phrasenum++;
+                break;
+            
+            case 2:
+                if(this.instnum<AHX.Song.Instruments.length-1)this.instnum++;
+                break;
+
         }
     }
 }
@@ -47,12 +109,19 @@ AHX.init = function() {
 	console.log('AHX.init');
     this.Master = AHXMaster();
     this.Song = new AHXSong();
+    this.newProject();
 };
 
 AHX.newProject=function(){
     console.log('newProject()');
     AHX.Master = AHXMaster();
     AHX.Song = new AHXSong();  
+    
+    //Set Tempo
+    AHX.Master.Output.Player.Tempo=4;//4, 5 ?
+    
+    //Set Multiplier
+    AHX.Song.SpeedMultiplier=1;//default
     
     //Set Track Length to 16
     AHX.Song.TrackLength=16;
@@ -83,16 +152,8 @@ AHX.newProject=function(){
     AHX.Song.Tracks.push(Tracks);
 }
 
-AHX.play=function(){
-	console.log("play", this);
-	//this.Master.Output.pos = [0,0,0,0];
-	this.Master.Play(this.Song);
-}
 
-AHX.stop=function(){
-	console.log("stop");
-	this.Master.Stop();
-}
+
 
 AHX.songPop=function(){
     AHX.Song.Positions.pop();

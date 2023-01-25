@@ -631,12 +631,18 @@ function AHXWaves() {
 
 function AHXPlayer(waves) {
 	return {
-		StepWaitFrames: 0, GetNewPosition: 0, SongEndReached: 0, TimingValue: 0,
+		StepWaitFrames: 0, 
+		GetNewPosition: 0, 
+		SongEndReached: 0, 
+		TimingValue: 0,
 		PatternBreak: 0,
 		MainVolume: 0x40,
-		Playing: 0, Tempo: 0,
-		PosNr: 0, PosJump: 0,
-		NoteNr: 0, PosJumpNote: 0,
+		Playing: 0, 
+		Tempo: 0,
+		PosNr: 0, 
+		PosJump: 0,
+		NoteNr: 0, 
+		PosJumpNote: 0,
 		WaveformTab: [], //char* WaveformTab[4];
 		Waves: waves || new AHXWaves(),
 		Voices: [],
@@ -769,6 +775,7 @@ function AHXPlayer(waves) {
 					if((FXParam & 0xf) > 0 && (FXParam & 0xf) <= 9)
 						this.PosJump = FXParam & 0xf;
 					break;
+				
 				case 0x5: // Volume Slide + Tone Portamento
 				case 0xa: // Volume Slide
 					this.Voices[v].VolumeSlideDown = FXParam & 0x0f;
@@ -814,6 +821,7 @@ function AHXPlayer(waves) {
 					this.Tempo = FXParam;
 					break;
 			}
+
 			if(Instrument) {
 				this.Voices[v].PerfSubVolume = 0x40;
 				this.Voices[v].PeriodSlideSpeed = this.Voices[v].PeriodSlidePeriod = this.Voices[v].PeriodSlideLimit = 0;
@@ -874,11 +882,13 @@ function AHXPlayer(waves) {
 			switch(FX) {
 				case 0x4: // Override filter
 					break;
+
 				case 0x9: // Set Squarewave-Offset
 					this.Voices[v].SquarePos = FXParam >> (5 - this.Voices[v].WaveLength);
 					this.Voices[v].PlantSquare = 1;
 					this.Voices[v].IgnoreSquare = 1;
 					break;
+				
 				case 0x5: // Tone Portamento + Volume Slide
 				case 0x3: // Tone Portamento (Period Slide Up/Down w/ Limit)
 					if(FXParam != 0) this.Voices[v].PeriodSlideSpeed = FXParam;
@@ -925,6 +935,7 @@ function AHXPlayer(waves) {
 						}
 					}
 					break;
+				
 				case 0xe: // Enhanced commands
 					switch(FXParam >> 4) {
 						case 0x1: // Fineslide up (Period fineslide down)
@@ -952,7 +963,10 @@ function AHXPlayer(waves) {
 		}, // ProcessStep
 		
 		ProcessFrame: function(v) {
-			if(!this.Voices[v].TrackOn) return;
+			if(!this.Voices[v].TrackOn){
+				//MUTED
+				return;
+			}
 		
 			if(this.Voices[v].NoteDelayOn) {
 				if(this.Voices[v].NoteDelayWait <= 0) 
@@ -1291,7 +1305,12 @@ function AHXPlayer(waves) {
 		VoiceOnOff: function(Voice, OnOff) {//MUTE
 			if(Voice < 0 || Voice > 3) return;
 			this.Voices[Voice].TrackOn = OnOff;
-		} // VoiceOnOff
+		}, // VoiceOnOff
+		
+		VoiceToggle:function(Voice){//Toggle Mute (jambonbill)
+			if(Voice < 0 || Voice > 3) return;
+			this.Voices[Voice].TrackOn = !this.Voices[Voice].TrackOn;
+		}
 	}
 }
 
