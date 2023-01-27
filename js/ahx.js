@@ -96,8 +96,65 @@ function AHXSong() {
 	this.Tracks = [];
 	this.Instruments = [];
 	this.Subsongs = [];
+
+	this.init=function(){
+		console.log('song init');
+		this.Name = '';
+		this.Restart = 0;
+		this.PositionNr = 0;
+		this.TrackLength = 0;
+		this.TrackNr = 0;		
+		this.Revision = 0;
+		this.SpeedMultiplier = 0;
+		this.Positions = [];
+		this.Tracks = [];
+		
+		this.Instruments = [];
+		this.InstrumentNr = 0;
+		
+		this.Subsongs = [];
+		this.SubsongNr = 0;
+	}
+/*
+	this.toString=function(){
+		//let out={};
+		//let str=JSON.stringify(this);
+		//console.log(str.length + " bytes");
+		//return str;
+		return JSON.stringify(this.toJson(),null);
+	}
+	*/
+
+	this.toJson=function(){//meh
+		return this;
+	}
+
+	this.loadJson=function(o){
+		this.init();
+		console.log(o);
+		this.Name = o.Name;
+		this.Restart = o.Restart;
+		this.PositionNr = o.PositionNr;
+		
+		this.TrackLength = o.TrackLength;
+		this.TrackNr = o.TrackNr;//crap
+		
+		
+		this.Revision = o.Revision;
+		this.SpeedMultiplier = o.SpeedMultiplier;
+		this.Positions = o.Positions;
+		this.Tracks = o.Tracks;
+		
+		this.Instruments = o.Instruments;
+		this.InstrumentNr = o.InstrumentNr;//crap
+
+		this.Subsongs = o.Subsongs;
+		this.SubsongNr = o.SubsongNr;//crap
+		return this;
+	}
 	
 	this.LoadSong = function(url, completionHandler) {
+		
 		function loadFile(sURL, fCallback) {
 			document.title=sURL;
 			var oXHR = new XMLHttpRequest();
@@ -132,6 +189,10 @@ function AHXSong() {
 		
 		//console.clear();
 		
+		//Reset song
+		this.init();
+
+
 		stream.pos = 0;
 		let test=stream.readStringAt(0);		
 		//console.log("THX?",test);

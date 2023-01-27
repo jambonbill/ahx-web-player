@@ -17,11 +17,19 @@ AHX.Editor={
     page:0,
     col:0,
     row:0,
-    play:function(){
-        //console.log("play", this);
-        //this.Master.Output.pos = [0,0,0,0];
-        AHX.Master.Play(AHX.Song);
+
+    load:function(filename){
+        AHX.Song = new AHXSong();
+        AHX.Song.LoadSong('ahx/Jazz_NL/06.ahx', (e)=>console.log('ready!',e));//()=>AHX.Editor.play() 
     },
+
+    play:function(){
+        console.log("play", "(todo)");
+        //this.Master.Output.pos = [0,0,0,0];
+        AHX.Master.Play(AHX.Song);//start
+        //AHX.Master.Play();//continue
+    },
+    
     stop:function(){
         console.log("stop");
         AHX.Master.Stop();
@@ -52,21 +60,24 @@ AHX.cursor={
     
     up:function(){
         //move cursor up
-        if(AHX.Master.Output.Player.NoteNr>0)AHX.Master.Output.Player.NoteNr--;
+        //if(AHX.Master.Output.Player.NoteNr>0)AHX.Master.Output.Player.NoteNr--;
     },
     
     down:function(){
         //move cursor down
-        if(AHX.Master.Output.Player.NoteNr<32)AHX.Master.Output.Player.NoteNr++;
+        //if(AHX.Master.Output.Player.NoteNr<32)AHX.Master.Output.Player.NoteNr++;
     },
+
     left:function(){
         this.track--;
         if(this.track<0)this.track=3;
     },
+    
     right:function(){
         this.track++;
         if(this.track>3)this.track=0;
     },
+    
     pageUp:function(){
         //Pos--
         switch (this.page) {
@@ -149,7 +160,10 @@ AHX.newProject=function(){
         Track.push(Step);
         //SBPtr += 3;
     }
-    AHX.Song.Tracks.push(Tracks);
+    AHX.Song.Tracks.push(Track);
+
+    //Set first instrument
+
 }
 
 

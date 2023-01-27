@@ -7,6 +7,7 @@ body{
     -ms-interpolation-mode: nearest-neighbor;
     -webkit-font-smoothing: none;
     background: #666;
+    text-align: center;
 }
 
 canvas#screen{

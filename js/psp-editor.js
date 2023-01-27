@@ -153,7 +153,7 @@ function displaySong(){//show the main sequences (not the pattern)
                 A.write(String(Math.abs(row.Transpose[x])).padStart(2, '0'));
             }else{
                 //no transpose value
-                A.write(".--",11);
+                A.write(":--",11);
             }
             A.write(" ");
         }

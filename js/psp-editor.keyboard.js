@@ -48,9 +48,9 @@ var initKeyboard=function(){
 
 		if(c==33)AHX.cursor.pageUp();
 		if(c==34)AHX.cursor.pageDown();
-		if(c==37)AHX.cursor.left();
-		if(c==39)AHX.cursor.right();
 		
+		if(c==37)AHX.cursor.left();
+		if(c==39)AHX.cursor.right();		
 		if(c==38)AHX.cursor.up();//UP
 		if(c==40)AHX.cursor.down();//DN
 

@@ -7,8 +7,8 @@ function phraseEditor(){
     //Instrument Editor
     let A=ascii().color(12);
     
-    line(0,0,48,0,160,1);
-    line(0,1,48,1,119,15);
+    line(0,0,cols(),0,160,1);
+    line(0,1,cols(),1,119,15);
     
     let pnum=AHX.cursor.phrasenum;
 
@@ -56,11 +56,13 @@ function phraseEditor(){
         if(step.Instrument||step.FX||step.fxParam){
             A.write(String(step.Instrument).padStart(2, '0'),color);//Instrument 
             A.put(32,1);//space
+            
+            //Effect
             A.write(fx,color); //fx 0-F 
-            A.put(32,1);//space
+            //A.put(32,1);//space
             A.write(String(fxParam).padStart(2, '0'),color); //Fx Param 00-FF        
         }else{
-            A.write("-- - --",11);
+            A.write("-- ---",11);
         }  
     }     
 }

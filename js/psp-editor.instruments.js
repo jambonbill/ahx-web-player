@@ -7,12 +7,16 @@ function instrumentList()
 
 function instrumentEditor(){
     
+    if(AHX.cursor.instnum>AHX.Song.Instruments.length-1){
+        AHX.cursor.instnum=1;//reset
+    }
+
     frame().clear();
     //Instrument Editor
     let A=ascii().color(11);
     
-    line(0,0,48,0,160,1);
-    line(0,1,48,1,119,15);
+    line(0,0,cols(),0,160,1);
+    line(0,1,cols(),1,119,15);
     
     A.pos(0,0).invert().write("INSTRUMENT #" + AHX.cursor.instnum, 1).write("/"+(AHX.Song.Instruments.length-1),15);
     A.invert(false);

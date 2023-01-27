@@ -13,36 +13,37 @@ const btnStop=document.getElementById('btnStop');
 const btnAddRow=document.getElementById('btnAddRow');
 
 btn0.onclick=function(){
-	AHX.Song = new AHXSong();
+	//AHX.Song = new AHXSong();
     //AHX.Song.LoadSong('ahx/disissid4/1.ahx', ()=>AHX.play());
-    AHX.Song.LoadSong('ahx/Jazz_NL/06.ahx', ()=>AHX.Editor.play());
+    //AHX.Song.LoadSong('ahx/Jazz_NL/06.ahx', ()=>AHX.Editor.play());
+    AHX.Editor.load('ahx/Jazz_NL/06.ahx');
 }
 
 btn1.onclick=function(){
-    AHX.Song = new AHXSong();
+    //AHX.Song = new AHXSong();
     AHX.Song.LoadSong('ahx/Doh/dreams-odyssee.ahx', ()=>AHX.Editor.play());
     
 }
 
 btn2.onclick=function(){
-    AHX.Song = new AHXSong();    
+    //AHX.Song = new AHXSong();    
     AHX.Song.LoadSong('ahx/MortimerTwang/amanda.ahx', ()=>AHX.Editor.play());
 }
 
 btn3.onclick=function(){
-    AHX.Song = new AHXSong();    
+    //AHX.Song = new AHXSong();    
     AHX.Song.LoadSong('ahx/Hoffman/GET TO THE CHOPPER!.ahx', ()=>AHX.Editor.play());
 }
 
 btn4.onclick=function(){
-    AHX.Song = new AHXSong();    
+    //AHX.Song = new AHXSong();    
     AHX.Song.LoadSong('ahx/JazzCat/rainmaking.ahx',()=>AHX.Editor.play());
 }
 
 btnShuffle.onclick=()=>shuffle();
 
-btnPlay.onclick=()=>AHX.Master.Play();
-btnStop.onclick=()=>AHX.stop();
+//btnPlay.onclick=()=>AHX.Master.Play();
+//btnStop.onclick=()=>AHX.stop();
 
 btnNew.onclick=()=>AHX.newProject();
 
@@ -82,6 +83,12 @@ btnPopRow.onclick=()=>{
     AHX.Song.Positions.pop();
     AHX.Song.PositionNr=AHX.Song.Positions.length;
 }
+
+
+btnMute0.onclick=()=>AHX.Master.Output.Player.VoiceToggle(0);
+btnMute1.onclick=()=>AHX.Master.Output.Player.VoiceToggle(1);
+btnMute2.onclick=()=>AHX.Master.Output.Player.VoiceToggle(2);
+btnMute3.onclick=()=>AHX.Master.Output.Player.VoiceToggle(3);
 
 
 //Phrases
@@ -131,6 +138,46 @@ btnFullScreen.onclick=()=>{
     }
 }
 
+document.getElementById('loadFromJSON').onchange=function(evt) {
+    console.log('loadFromJSON.onchange');
+    evt.stopPropagation();
+    evt.preventDefault();
+    var file = evt.target.files[0];
+    var reader = new FileReader();
+    var data = false;
+    reader.onload = (function(theFile) {
+        return function(e) {
+            data = JSON.parse(e.target.result);
+            if (!data) return;
+            if(AHX.Song.loadJson(data)){
+                //play !
+                console.log('ready to play!');
+            }else{
+                console.error("Error loading json");
+            }
+        }
+    })(file);
+    reader.readAsText(file);
+};
+
+btnSave.onclick=function(){
+    console.log('save');
+    saveAsJson(AHX.Song.Name+'.ahx.json');
+}
+
+function saveAsJson(fn){
+    if(!fn)return;
+    var data = JSON.stringify(AHX.Song.toJson(),null);
+    //let data = AHX.Song.toString();
+    let el=document.createElement('a');
+    el.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+    el.setAttribute('download', fn);
+    el.style.display = 'none';
+    document.body.appendChild(el);
+    el.click();
+    document.body.removeChild(el);
+}
+
 async function shuffle() {
 
     //https://twitter.com/Steve8708/status/1612907638957932544
@@ -143,12 +190,11 @@ async function shuffle() {
 
     //const currentUrl=new URL(location.href);
 
-  const response = await fetch('shuffle.php');
-  const json = await response.json();
-  console.log('shuffle()', json.filename); 
-  // logs [{ name: 'Joker'}, { name: 'Batman' }]
-  // 
-  AHX.Song = new AHXSong();
+    const response = await fetch('shuffle.php');
+    const json = await response.json();
+    console.log('shuffle()', json.filename); 
+  
+    //AHX.Song = new AHXSong();
     AHX.Song.LoadSong(json.filename, function() { // asynchronously load a AHX song into memory
         //AHX.play();
         console.log("Loaded and ready to play!", AHX.Song);
