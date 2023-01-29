@@ -3,22 +3,16 @@ setFps(60);
 resize(48,27);//FHD-able
 resize(80,45);//FHD-able
 
-
-function navbar(){
-    
-    let A=ascii().color(15);
-    
-    // Show SONG Title
-    line(0,0,cols(),0,160,1);
-    line(0,1,cols(),1,119,15);
-    
-    A.pos(0,0).invert().write(AHX.songTitle().toUpperCase(),1);
-    //A.pos(44,0).write("AHX.",1);
-    
-    //Current SONG Position 
-    A.pos(42,0).write(String(AHX.Master.Output.Player.PosNr).padStart(3,'0')+".").write(AHX.Master.Output.Player.NoteNr);
-
-}
+let c=new Uint8Array(8);
+    c[0]=0b00010000;
+    c[1]=0b00011000;
+    c[2]=0b00011100;
+    c[3]=0b00011110;
+    c[4]=0b00011100;
+    c[5]=0b00011000;
+    c[6]=0b00010000;
+    c[7]=0b00000000;    
+    charset().chr(93,c);//Arrow
 
 function main(){
 
@@ -37,40 +31,28 @@ function main(){
     A.pos(42,0).write(String(AHX.Master.Output.Player.PosNr).padStart(3,'0')+".").write(AHX.Master.Output.Player.NoteNr);
     */
     
-    navbar();
-    instrumentPreview();
+    //navbar();
+    //instrumentPreview();
     //debug();
     
     //let max= AHX.Song.PositionNr-1;
 	//let current=AHX.Master.Output.Player.PosNr;
-	A.invert(false);
-	A.pos(1,2).write("POS").write(String(AHX.Master.Output.Player.PosNr).padStart(3, ' '),1);
-	A.pos(1,3).write("LEN").write(String(AHX.Song.PositionNr-1).padStart(3, ' '));
-	A.pos(1,4).write("RES").write(String(AHX.Song.Restart).padStart(3, ' '));
-	A.pos(1,5).write("TRL").write(String(AHX.Song.TrackLength).padStart(3, ' '));
-	A.pos(1,6).write(" SS").write(String(AHX.Song.SubsongNr).padStart(3, ' '));
-    //A.pos(1,7).write("SSN").write(String(0).padStart(3, '0'));
-    //A.pos(1,8).write("SSP").write(String(0).padStart(3, '0'));
-    A.pos(1,8).write("SPEED:",11);
-    A.pos(1,9).write("MUL").write(String(AHX.Song.SpeedMultiplier).padStart(3, ' '));
-    A.pos(1,10).write("TPO").write(String(AHX.Master.Output.Player.Tempo).padStart(3, ' '));
-    
+	
     //Main 
     switch(AHX.cursor.page){
         
         
         case 1:
-            phraseEditor();
+            phraseEditor.main();
             break;
 
         case 2:
-            instrumentEditor();
+            //nstrumentEditor();
+            instruments.main();
             break;
         
         default:
-            displaySong();
-           //displayInstr();
-            //displayPatterns();
+            songEditor.main();
             break;
     }
     //debug();
@@ -235,28 +217,5 @@ function displayPatterns()
 */
 
 
-function instrumentPreview(){
-    let A=ascii();
-    let x=50;
-    A.pos(x,2).write("-- INSTRUMENTS --------------");
-    
-    // List instruments    
-    for(let i=1;i<AHX.Song.Instruments.length;i++){
-        let inst=AHX.Song.Instruments[i];
-        if(i==AHX.cursor.instnum){
-            A.pos(x,i+2).write(String(i).padStart(2, '0'), 1);     
-        
-        }else{
-            A.pos(x,i+2).write(String(i).padStart(2, '0'));     
-        
-        }
-        A.write(" "+inst.Name.toUpperCase(),12);        
-    }
-}
-
-function debug(){
-    let p=cols()*26;
-    for(let i=0;i<16;i++)poke(p+i,[250,i]);
-}
 
 hook(main);

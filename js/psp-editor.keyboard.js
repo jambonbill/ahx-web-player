@@ -4,9 +4,14 @@ var _pressedKeys={};
 
 var initKeyboard=function(){
 	//console.info('initKeyboard');	
+	
 	addEventListener("keydown", function(ev) {
 
-	//$('body').keydown(function(ev) {
+		switch(page){
+			case 0:songEditor.keydown(ev);break;
+			case 0:phraseEditor.keydown(ev);break;
+			case 0:instruments.keydown(ev);break;
+		}
 
 		// input fields:
 		//if (["INPUT", "SELECT","TEXTAREA"].indexOf(ev.target.nodeName) !== -1) return;
