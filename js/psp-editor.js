@@ -41,18 +41,21 @@ function main(){
     //Main 
     switch(AHX.cursor.page){
         
-        
+        case 0:
+            songEditor.main();
+            break;
+
         case 1:
             phraseEditor.main();
             break;
 
         case 2:
             //nstrumentEditor();
-            instruments.main();
+            instrumentEditor.main();
             break;
         
         default:
-            songEditor.main();
+            //
             break;
     }
     //debug();

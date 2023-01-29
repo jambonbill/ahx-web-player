@@ -37,11 +37,11 @@ AHX.Editor={
 }
 
 //This is 
-AHX.Nav={}
+//AHX.Nav={}
 //Editor ?
 //AHX.Ed={}
 
-AHX.cursor={
+AHX.cursor={//this is crap
     
     page:0,// 0=>main - 1=>phrase 2=>instrument
     track:0,// 0-3

@@ -1,9 +1,44 @@
 //PSP-AHX SONG Editor
-let songEditor={
+const songEditor={
    
     cursor:{
         x:0,//track
         y:0,
+        w:0,//extend selection
+        h:0,//extend selection
+
+        up:function(){
+            if(this.y>0)this.y--
+        },
+        down:function(){
+            if(this.y<AHX.Song.PositionNr-1){
+                this.y++;
+            }
+        },
+        left:function(){
+            if(this.x>0)this.x--;
+        },
+        right:function(){
+            this.x++;
+            if(this.x>3)this.x=0;
+        },
+        plus:function(){
+            let tn=AHX.Song.Positions[this.y].Track[this.x];
+            AHX.Song.Positions[this.y].Track[this.x]++;
+        },
+        minus:function(){
+            let tn=AHX.Song.Positions[this.y].Track[this.x];
+            if (tn>0) {
+                AHX.Song.Positions[this.y].Track[this.x]--;    
+            }            
+        },
+        suppr:function(){
+            AHX.Song.Positions[this.y].Track[this.x]=0;
+        }
+    },
+    
+    clipboard:{
+        //todo
     },
 
     main:function(){
@@ -12,6 +47,7 @@ let songEditor={
         this.menu();
         this.song();
         this.instrumentPreview();
+        debug();
     },
 
     navbar:function(){
@@ -73,7 +109,7 @@ let songEditor={
             }
             */
             if(!row){
-                A.write(" ---:--  ---:--  ---:--  ---:-- ",11);
+                A.write(" ---:-- ---:-- ---:-- ---:--",11);
                 continue;    
             }
             
@@ -100,16 +136,16 @@ let songEditor={
                 
                 
                 if(row.Transpose[x]>0){
-                    A.put(43);// PLUS
+                    A.put(43,7);// PLUS
                     A.write(String(row.Transpose[x]).padStart(2, '0'));
                 }else if(row.Transpose[x]<0){
-                    A.put(45);// MINUS
+                    A.put(45,7);// MINUS
                     A.write(String(Math.abs(row.Transpose[x])).padStart(2, '0'));
                 }else{
                     //no transpose value
                     A.write(":--",11);
                 }
-                A.write(" ");
+                //A.write(" ");
             }
         }
     },
@@ -129,9 +165,40 @@ let songEditor={
             A.write(" "+inst.Name.toUpperCase(),12);        
         }
     },
-
+    
+    _pressedKeys:{},
+    
     keydown:function(ev){
+        let c = ev.which;
+        
+        this._pressedKeys[c] = true;//capture special keys
+        let SHIFT=this._pressedKeys[16];
+        let CTRL=this._pressedKeys[17];
+        let ALT =this._pressedKeys[18];
+        
+        switch (c) {
+            case 37:this.cursor.left(); break;
+            case 39:this.cursor.right();break;
+            
+            case 38:this.cursor.up();   break;
+            case 40:this.cursor.down(); break;        
+            
+            case 46://suppr
+                this.cursor.suppr();break;        
 
+            //+/-
+            case 107:this.cursor.plus();break;
+            case 109:this.cursor.minus();break;
+            
+            default:
+                console.log("key",c);
+                break;
+        }      
+        
+    },
+
+    keyup:function(ev){
+        //todo release pressed keys
     }
 
 }
@@ -140,6 +207,6 @@ let songEditor={
 
 
 function debug(){
-    let p=cols()*26;
+    let p=64+cols()*44;
     for(let i=0;i<16;i++)poke(p+i,[250,i]);
 }

@@ -1,5 +1,5 @@
 //PSP-AHX - Instruments
-const instruments={
+const instrumentEditor={
     
     main:function(){
         frame().clear();
