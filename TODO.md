@@ -1,10 +1,14 @@
 # TODO
 
 - Splash Screen
+- Extract song instruments, and save to DB
 - Config Screen (SpeedMult. Tempo, Name)
 
-- Cursor independent from song position
+- Instrument Presets
+
 - Input notes from keyboard
+
+- Load multiple songs
 
 - Stereo Mode : Hard Amiga, Pan
 - Gamepad support
@@ -12,7 +16,7 @@
 - Add two channels ?
 - Random Instrument Generator
 - Phrase Generator
-- MultiTrack Phrase editor
+- MultiTrack Phrase editor ?
 
 ### DOING
 - Play, when rack is stopped (speed 0)
@@ -23,3 +27,4 @@
 - Mute Tracks  - AHX.Master.Output.Player.VoiceOnOff(Voice, onoff); AHX.Master.Output.Player.VoiceToggle(Voice);
 - Save to JSON
 - Load from JSON
+- Cursor independent from song position
