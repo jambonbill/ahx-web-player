@@ -59,6 +59,19 @@ const songEditor={
         
         A.pos(0,0).invert().write(AHX.songTitle().toUpperCase(),1);
        
+        //MUTED//
+        A.pos(13,0);
+        for(let i=0;i<4;i++){
+            if(!AHX.Master.Output.Player.Voices[i])continue;
+            let on=AHX.Master.Output.Player.Voices[i].TrackOn;
+            if(!on){
+                A.write("[MUTE] ",1);
+            }else{
+                A.write("       ",1);
+            }
+        }
+        //AHX.Master.Output.Player.VoiceToggle(0)
+        
         //Current SONG Position 
         A.pos(74,0).write(String(AHX.Master.Output.Player.PosNr).padStart(3,'0')+".").write(AHX.Master.Output.Player.NoteNr);
 
@@ -99,8 +112,12 @@ const songEditor={
             
             if(prow<0)continue;//?            
             
-            A.pos(9,y).write(String(i).padStart(3, '0'),11);    
-            
+            if(row){
+                A.pos(9,y).write(String(i).padStart(3, '0'),11);    
+            }else{
+                A.pos(9,y).write('---',11);
+            }
+
             /*
             if(pos==i){
                 A.pos(9,y).write(String(i).padStart(3, '0'), 1);
@@ -117,7 +134,10 @@ const songEditor={
 
                 A.invert(false);
                 
-                if(pos==i){
+                let mute=false;
+                //!AHX.Master.Output.Player.Voices[x].TrackOn;
+                
+                if(pos==i&&!mute){
                     A.put(93,1);// PIXEL Arrow show song position
                 }else{
                     A.put(32);// space
