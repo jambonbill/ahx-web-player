@@ -195,8 +195,14 @@ function AHXSong() {
 
 		stream.pos = 0;
 		let test=stream.readStringAt(0);		
-		//console.log("THX?",test);
-
+		
+		console.log("THX?",test);
+		
+		if(test.substr(0,3)!='THX'){
+			console.error("Not a valid THX file");
+			return false;
+		}
+		
 		stream.pos = 3;//skip first 3 bytes
 		this.Revision = stream.readByte();
 		//console.log('Revision',Revision);
