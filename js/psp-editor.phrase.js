@@ -1,4 +1,4 @@
-//PSP-AHX Phrase Editor
+//PSP-AHX Phrase Editor (or Track editor)
 const phraseEditor={
    
     cursor:{
@@ -7,7 +7,7 @@ const phraseEditor={
         w:0,
         h:0,
         phrasenum:0,//Current phrase Number
-        inst:0,//current instrument number
+        inst:1,//current instrument number
         octave:1,//current octave
         clipboard:{},
         up:function(){
@@ -48,6 +48,13 @@ const phraseEditor={
                 case 2:step.FX=0;break;
                 case 3:step.FXParam=0;break;
             }
+        },
+        setNote:function(note){
+            if(this.x!=0)return;
+            let step=AHX.Song.Tracks[this.phrasenum][this.y];
+            step.Note=(note+1)+(this.octave*12);
+            step.Instrument=this.inst;
+            this.y++;
         }
     },
 
@@ -56,6 +63,15 @@ const phraseEditor={
         this.navbar();
         this.menu();
         this.phrase();
+        
+        switch(this.cursor.x){
+            case 1:this.instruments();break;
+            case 2:
+            case 3:
+                this.commands();break;
+        }
+        
+        this.debug();
     },
 
     navbar:function(){
@@ -80,6 +96,10 @@ const phraseEditor={
         A.pos(1,3).write("LEN").write(String(AHX.Song.PositionNr-1).padStart(3, ' '));
         A.pos(1,4).write("RES").write(String(AHX.Song.Restart).padStart(3, ' '));
         A.pos(1,5).write("TRL").write(String(AHX.Song.TrackLength).padStart(3, ' '));
+        //kEYBOARD
+        if(keySHIFT())A.pos(1,10).write("SHIFT");
+        if(keyCTRL())A.pos(1,11).write("CTRL");
+        if(keyALT())A.pos(1,12).write("ALT");
     },
 
     phrase:function(){
@@ -142,14 +162,91 @@ const phraseEditor={
         }     
     },
 
+    commands:function(){
+        // The command screen (help page)
+        let cmds=["NONE",
+        "PORTAMENTO UP",
+        "PORTAMENTO DN",
+        "TONE PORTAMENTO",
+        "SET/OVERRIDE FILTER",
+        "TONE PORTA + VOL SLIDE",
+        "UNUSED",
+        "UNUSED",
+        "EXTERNAL TIMING",
+        "SET SQUARE RELATION",
+        "VOLUME SLIDE",
+        "POSITION JUMP",
+        "SET VOLUME",
+        "POS.BREAK",
+        "MISC.COMMANDS",
+        "SET SPEED"
+        ];
+        
+        let x=40;
+        let A=ascii().color(11).pos(x,2).write("COMMANDS");
+        A.pos(x, 3).write("--------------");
+        for(let i=0;i<16;i++){
+            A.pos(x, 4+i).write(i.toString(16).toUpperCase() + " - " + cmds[i]);    
+        }
+        /*
+        A.pos(x, 4).write("0 - NONE");
+        A.pos(x, 5).write("1 - PORTAMENTO UP");
+        A.pos(x, 6).write("2 - PORTAMENTO DOWN");
+        A.pos(x, 7).write("3 - TONE PORTAMENTO");
+        A.pos(x, 8).write("4 - SET/OVERRIDE FILTER");
+        A.pos(x, 9).write("5 - TONE PORTAMENTO + VOL SLIDE");
+        A.pos(x,10).write("6 - UNUSED");
+        A.pos(x,11).write("7 - UNUSED");
+        A.pos(x,12).write("8 - EXTERNAL TIMING");
+        A.pos(x,13).write("9 - SET SQUARE RELATION");
+        A.pos(x,14).write("A - VOLUME SLIDE");
+        A.pos(x,15).write("B - POSITION JUMP");
+        A.pos(x,16).write("C - SET VOLUME");
+        A.pos(x,17).write("D - POS.BREAK");
+        A.pos(x,18).write("E - MISC.COMMANDS");
+        A.pos(x,19).write("F - SET SPEED");
+        */
+    },
+
+    instruments:function(){
+        //Show Instruments
+        let x=40;
+        let A=ascii().color(11).pos(x,2).write("INSTRUMENTS");
+        A.pos(x, 3).write("--------------");
+        // List instruments    
+        for(let i=1;i<AHX.Song.Instruments.length;i++){
+            let inst=AHX.Song.Instruments[i];
+            if(i==AHX.cursor.instnum){
+                A.pos(x,i+2).write(String(i).padStart(2, '0'), 1);            
+            }else{
+                A.pos(x,i+2).write(String(i).padStart(2, '0'));            
+            }
+            A.write(" "+inst.Name.toUpperCase(),12);        
+        }
+    },
+
+    debug:function(){
+        for(let i=0;i<16;i++){
+            let p=cols()*45-16;
+            poke(p+i,[250,i]);
+        }
+    },
+
+    //_pressedKey={},
     keydown:function(ev){
         
         let c = ev.which;
-        
         let note=keyCodeToMidiNote(c);
+        
         if(c>=112&&c<=115){//F1-F4
             console.log("FKEY");
         }
+
+        if(note){
+            //set note
+            this.cursor.setNote(note);
+        }
+        
         switch(c){
 
             case 33://pgup - Previous prhrase
@@ -188,17 +285,3 @@ const phraseEditor={
 }
 
 
-//FX's (just a guess, probably wrong)
-/*
-case 0: //Init Waveform
-case 1://Slide UP
-case 2://Slide Down
-case 3: // Init Square Modulation
-case 4: // Start/Stop Modulation
-case 5: // Jump to Step [xx]
-case 6: // Set Volume
-case 7: // set speed
-
-F - Set Tempo
-
-*/
