@@ -1,0 +1,43 @@
+{
+	"Name":">> Buzzer/Zenon <<",
+	"Volume":64,
+	"WaveLength":5,
+	"Envelope":{
+		"aFrames":1,
+		"aVolume":64,
+		"dFrames":1,
+		"dVolume":64,
+		"sFrames":2,
+		"rFrames":1,
+		"rVolume":42
+	},
+	
+	"FilterLowerLimit":0,
+	"FilterUpperLimit":0,
+	"FilterSpeed":0,
+	"SquareLowerLimit":1,
+	"SquareUpperLimit":63,
+	"SquareSpeed":1,
+	"VibratoDelay":16,
+	"VibratoDepth":2,
+	"VibratoSpeed":7,
+	"HardCutRelease":0,
+	"HardCutReleaseFrames":0,
+	"PList":{
+		"Speed":1,
+		"Length":2,
+		"Entries":[
+			{"Note":58,
+			"Fixed":1,
+			"Waveform":4,
+			"FX":[6,3],
+			"FXParam":[107,16]
+		},{
+			"Note":1,
+			"Fixed":0,
+			"Waveform":3,
+			"FX":[6,4],
+			"FXParam":[144,0]
+		}]
+	}
+}
