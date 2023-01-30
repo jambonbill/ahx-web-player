@@ -131,7 +131,7 @@ const instrumentEditor={
         y:0,
     },
 
-    keyboard:function(ev){//keyboard events are forwarded here when displayed
+    keydown:function(ev){//keyboard events are forwarded here when displayed
         //todo
         console.log(ev);
         /*
