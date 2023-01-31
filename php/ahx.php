@@ -1,6 +1,7 @@
 <?php
 /**
  * AHX File manipulation
+ * Converted from https://github.com/bryc/ahx-web-player/blob/master/ahx.js
  * @author : jambonbill <[<email address>]>
  */
 
@@ -201,9 +202,9 @@ class AHX{
 					$Track[]=['Note'=>0,'Instrument'=>0,'FX'=>0,'FXParam'=>0];
 			} else {
 				for($j = 0; $j < $this->TrackLength; $j++) {
-					$b0=unpack('C',fread($handle,1))[1];;
-					$b1=unpack('C',fread($handle,1))[1];;
-					$b2=unpack('C',fread($handle,1))[1];;
+					$b0=unpack('C',fread($handle,1))[1];
+					$b1=unpack('C',fread($handle,1))[1];
+					$b2=unpack('C',fread($handle,1))[1];
 					$Step = ['Note'=>0,'Instrument'=>0,'FX'=>0,'FXParam'=>0];
 					$Step['Note'] = ($b0>>2)&0x3f;
 					$Step['Instrument'] = (($b0&0x3)<<4) | ($b1>>4);
@@ -220,59 +221,68 @@ class AHX{
 		//Song.Instruments = new AHXInstrument[Song.InstrumentNr+1];
 		//this.Instruments.push(AHXInstrument()); // empty instrument 0
 		$this->Instruments=[];
+		$this->Instruments[0]=null;
 		for($i = 1; $i < $this->InstrumentNr+1; $i++) {
 			//TODO !!!
 			$Instrument=[];
-			
+			$Instrument['Name']='INST#'.$i;
 			//Instrument.Volume = stream.readByteAt(SBPtr+0);
-			$Instrument['Volume']=0;
+			$Instrument['Volume']=unpack('C',fread($handle,1))[1];
+			
+			$b=unpack('C',fread($handle,1))[1];
 			//Instrument.FilterSpeed = ((stream.readByteAt(SBPtr+1)>>3)&0x1f) | ((stream.readByteAt(SBPtr+12)>>2)&0x20);
-			$Instrument['FilterSpeed']=0;
+			$Instrument['FilterSpeed']=(($b>>3)&0x1f);
 			//Instrument.WaveLength = stream.readByteAt(SBPtr+1)&0x7;
-			$Instrument['WaveLength']=0;
+			$Instrument['WaveLength']=$b&0x7;
 			
 			$Instrument['Envelope']=[];
 			//Instrument.Envelope.aFrames = stream.readByteAt(SBPtr+2);
-			$Instrument['Envelope']['aFrames']=0;
+			$Instrument['Envelope']['aFrames']=unpack('C',fread($handle,1))[1];
 			//Instrument.Envelope.aVolume = stream.readByteAt(SBPtr+3);
-			$Instrument['Envelope']['aVolume']=0;
+			$Instrument['Envelope']['aVolume']=unpack('C',fread($handle,1))[1];
 			//Instrument.Envelope.dFrames = stream.readByteAt(SBPtr+4); //4
-			$Instrument['Envelope']['dFrames']=0;
+			$Instrument['Envelope']['dFrames']=unpack('C',fread($handle,1))[1];
 			//Instrument.Envelope.dVolume = stream.readByteAt(SBPtr+5);
-			$Instrument['Envelope']['dVolume']=0;
+			$Instrument['Envelope']['dVolume']=unpack('C',fread($handle,1))[1];
 			//Instrument.Envelope.sFrames = stream.readByteAt(SBPtr+6);
-			$Instrument['Envelope']['sFrames']=0;
+			$Instrument['Envelope']['sFrames']=unpack('C',fread($handle,1))[1];
 			//Instrument.Envelope.rFrames = stream.readByteAt(SBPtr+7); //7
-			$Instrument['Envelope']['rFrames']=0;
+			$Instrument['Envelope']['rFrames']=unpack('C',fread($handle,1))[1];
 			//Instrument.Envelope.rVolume = stream.readByteAt(SBPtr+8);
-			$Instrument['Envelope']['rVolume']=0;
+			$Instrument['Envelope']['rVolume']=unpack('C',fread($handle,1))[1];
 			
+			fread($handle,1);//skip (undocumented)
+			fread($handle,1);//skip (undocumented)
+			fread($handle,1);//skip (undocumented)
+
 			//Instrument.FilterLowerLimit = stream.readByteAt(SBPtr+12)&0x7f;
-			$Instrument['FilterLowerLimit']=0;
+			$Instrument['FilterLowerLimit']=unpack('C',fread($handle,1))[1]&0x7f;
 			//Instrument.VibratoDelay = stream.readByteAt(SBPtr+13); //13
-			$Instrument['VibratoDelay']=0;
+			$Instrument['VibratoDelay']=unpack('C',fread($handle,1))[1];
+			
 			//Instrument.HardCutReleaseFrames = (stream.readByteAt(SBPtr+14)>>4)&7;
-			$Instrument['HardCutReleaseFrames']=0;
+			$b14=unpack('C',fread($handle,1))[1];
+			$Instrument['HardCutReleaseFrames']=($b14>>4)&7;
 			//Instrument.HardCutRelease = stream.readByteAt(SBPtr+14)&0x80?1:0;
-			$Instrument['HardCutRelease']=0;
+			$Instrument['HardCutRelease']=($b14)&0x80?1:0;
 			//Instrument.VibratoDepth = stream.readByteAt(SBPtr+14)&0xf; //14
-			$Instrument['VibratoDepth']=0;
+			$Instrument['VibratoDepth']=($b14)&0xf;
 			//Instrument.VibratoSpeed = stream.readByteAt(SBPtr+15);
-			$Instrument['VibratoSpeed']=0;
+			$Instrument['VibratoSpeed']=unpack('C',fread($handle,1))[1];
 			//Instrument.SquareLowerLimit = stream.readByteAt(SBPtr+16);
-			$Instrument['SquareLowerLimit']=0;
+			$Instrument['SquareLowerLimit']=unpack('C',fread($handle,1))[1];
 			//Instrument.SquareUpperLimit = stream.readByteAt(SBPtr+17); //17
-			$Instrument['SquareUpperLimit']=0;
+			$Instrument['SquareUpperLimit']=unpack('C',fread($handle,1))[1];
 			//Instrument.SquareSpeed = stream.readByteAt(SBPtr+18);
-			$Instrument['SquareSpeed']=0;
+			$Instrument['SquareSpeed']=unpack('C',fread($handle,1))[1];
 			//Instrument.FilterUpperLimit = stream.readByteAt(SBPtr+19)&0x3f; //19
-			$Instrument['FilterUpperLimit']=0;
+			$Instrument['FilterUpperLimit']=unpack('C',fread($handle,1))[1];
 			
 			$Instrument['PList']=[];
 			//Instrument.PList.Speed = stream.readByteAt(SBPtr+20);
-			$Instrument['PList']['Speed']=0;
+			$Instrument['PList']['Speed']=unpack('C',fread($handle,1))[1];
 			//Instrument.PList.Length= stream.readByteAt(SBPtr+21);
-			$Instrument['PList']['Length']=0;
+			$Instrument['PList']['Length']=unpack('C',fread($handle,1))[1];
 			//SBPtr += 22;
 			
 			/*
@@ -290,7 +300,7 @@ class AHX{
 			}
 			*/
 			
-			$this->Instruments[]=$inst;
+			$this->Instruments[$i]=$Instrument;
 		}
 	}
 
@@ -326,7 +336,7 @@ class AHX{
 		$dat['SpeedMultiplier']=$this->SpeedMultiplier;
 		//$dat['Positions']=$this->Positions;
 		//$dat['Tracks']=$this->Tracks;
-		//$dat['Instruments']=$this->Instruments;
+		$dat['Instruments']=$this->Instruments;
 		//$dat['Subsongs']=$this->Subsongs;
 		return $dat;
 	}
