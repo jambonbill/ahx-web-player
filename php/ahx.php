@@ -1,6 +1,12 @@
 <?php
+/**
+ * AHX File manipulation
+ * @author : jambonbill <[<email address>]>
+ */
 
 namespace AHX;
+
+use Exception;
 
 /**
  * Read/Save AHX File
@@ -29,6 +35,8 @@ class AHX{
 	private $Instruments = [];
 	private $Subsongs = [];
 
+	
+
 	public function loadSong(string $filename)
 	{
 		if(!is_readable($filename)){
@@ -42,6 +50,25 @@ class AHX{
 		$this->initSong($handle);
 		fclose($handle);
 	}
+
+	
+	/**
+	 * Load and decode AHX JSON file
+	 * @param  string $filename [description]
+	 * @return [type]           [description]
+	 */
+	public function loadJson(string $filename)
+	{
+		if (!is_readable($filename)) {
+			throw new Exception("Not readable", 1);
+		}
+
+		$data=json_decode(file_get_contents($filename));
+		print_r($data);
+		//TODO SET AHX DATA
+	}
+
+	
 
 	public function initSong($handle)
 	{
@@ -192,8 +219,78 @@ class AHX{
 		// Instruments ///////////////////////////////////////
 		//Song.Instruments = new AHXInstrument[Song.InstrumentNr+1];
 		//this.Instruments.push(AHXInstrument()); // empty instrument 0
+		$this->Instruments=[];
 		for($i = 1; $i < $this->InstrumentNr+1; $i++) {
 			//TODO !!!
+			$Instrument=[];
+			
+			//Instrument.Volume = stream.readByteAt(SBPtr+0);
+			$Instrument['Volume']=0;
+			//Instrument.FilterSpeed = ((stream.readByteAt(SBPtr+1)>>3)&0x1f) | ((stream.readByteAt(SBPtr+12)>>2)&0x20);
+			$Instrument['FilterSpeed']=0;
+			//Instrument.WaveLength = stream.readByteAt(SBPtr+1)&0x7;
+			$Instrument['WaveLength']=0;
+			
+			$Instrument['Envelope']=[];
+			//Instrument.Envelope.aFrames = stream.readByteAt(SBPtr+2);
+			$Instrument['Envelope']['aFrames']=0;
+			//Instrument.Envelope.aVolume = stream.readByteAt(SBPtr+3);
+			$Instrument['Envelope']['aVolume']=0;
+			//Instrument.Envelope.dFrames = stream.readByteAt(SBPtr+4); //4
+			$Instrument['Envelope']['dFrames']=0;
+			//Instrument.Envelope.dVolume = stream.readByteAt(SBPtr+5);
+			$Instrument['Envelope']['dVolume']=0;
+			//Instrument.Envelope.sFrames = stream.readByteAt(SBPtr+6);
+			$Instrument['Envelope']['sFrames']=0;
+			//Instrument.Envelope.rFrames = stream.readByteAt(SBPtr+7); //7
+			$Instrument['Envelope']['rFrames']=0;
+			//Instrument.Envelope.rVolume = stream.readByteAt(SBPtr+8);
+			$Instrument['Envelope']['rVolume']=0;
+			
+			//Instrument.FilterLowerLimit = stream.readByteAt(SBPtr+12)&0x7f;
+			$Instrument['FilterLowerLimit']=0;
+			//Instrument.VibratoDelay = stream.readByteAt(SBPtr+13); //13
+			$Instrument['VibratoDelay']=0;
+			//Instrument.HardCutReleaseFrames = (stream.readByteAt(SBPtr+14)>>4)&7;
+			$Instrument['HardCutReleaseFrames']=0;
+			//Instrument.HardCutRelease = stream.readByteAt(SBPtr+14)&0x80?1:0;
+			$Instrument['HardCutRelease']=0;
+			//Instrument.VibratoDepth = stream.readByteAt(SBPtr+14)&0xf; //14
+			$Instrument['VibratoDepth']=0;
+			//Instrument.VibratoSpeed = stream.readByteAt(SBPtr+15);
+			$Instrument['VibratoSpeed']=0;
+			//Instrument.SquareLowerLimit = stream.readByteAt(SBPtr+16);
+			$Instrument['SquareLowerLimit']=0;
+			//Instrument.SquareUpperLimit = stream.readByteAt(SBPtr+17); //17
+			$Instrument['SquareUpperLimit']=0;
+			//Instrument.SquareSpeed = stream.readByteAt(SBPtr+18);
+			$Instrument['SquareSpeed']=0;
+			//Instrument.FilterUpperLimit = stream.readByteAt(SBPtr+19)&0x3f; //19
+			$Instrument['FilterUpperLimit']=0;
+			
+			$Instrument['PList']=[];
+			//Instrument.PList.Speed = stream.readByteAt(SBPtr+20);
+			$Instrument['PList']['Speed']=0;
+			//Instrument.PList.Length= stream.readByteAt(SBPtr+21);
+			$Instrument['PList']['Length']=0;
+			//SBPtr += 22;
+			
+			/*
+			for(var j = 0; j < Instrument.PList.Length; j++) {
+				var Entry = AHXPlistEntry();
+				Entry.FX[0] = (stream.readByteAt(SBPtr+0)>>2)&7;
+				Entry.FX[1] = (stream.readByteAt(SBPtr+0)>>5)&7;
+				Entry.Waveform = ((stream.readByteAt(SBPtr+0)<<1)&6) | (stream.readByteAt(SBPtr+1)>>7);
+				Entry.Fixed = (stream.readByteAt(SBPtr+1)>>6)&1;
+				Entry.Note = stream.readByteAt(SBPtr+1)&0x3f;
+				Entry.FXParam[0] = stream.readByteAt(SBPtr+2);
+				Entry.FXParam[1] = stream.readByteAt(SBPtr+3);
+				Instrument.PList.Entries.push(Entry);
+				SBPtr += 4;
+			}
+			*/
+			
+			$this->Instruments[]=$inst;
 		}
 	}
 
@@ -205,7 +302,7 @@ class AHX{
 
 	public function saveSong(string $filename)
 	{
-		//
+		//todo
 	}
 
 
