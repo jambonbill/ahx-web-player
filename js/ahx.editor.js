@@ -128,6 +128,8 @@ AHX.newProject=function(){
     AHX.Master = AHXMaster();
     AHX.Song = new AHXSong();  
     
+    AHX.Song.Name="NEW";
+    
     //Set Tempo
     AHX.Master.Output.Player.Tempo=4;//4, 5 ?
     
@@ -188,7 +190,7 @@ AHX.newProject=function(){
         Speed:4,
         Length:2,
         Entries:[
-            {"Note":1,"Fixed":0,"Waveform":2,"FX":[0,3],"FXParam":[0,32]},
+            {"Note":1,"Fixed":0,"Waveform":2,"FX":[0,0],"FXParam":[0,0]},
             {"Note":0,"Fixed":0,"Waveform":0,"FX":[0,0],"FXParam":[0,0]}
         ]
     }
