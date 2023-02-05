@@ -17,7 +17,7 @@ let c=new Uint8Array(8);
 function main(){
 	
     //Main 
-    switch(AHX.cursor.page){
+    switch(AHX.Editor.page){
         
         case 0:songEditor.main();break;
         case 1:phraseEditor.main();break;

@@ -10,16 +10,41 @@ const phraseEditor={
         inst:1,//current instrument number
         octave:1,//current octave
         clipboard:{},
+        reset:function(){//reset selection
+            this.w=0;
+            this.h=0;
+        },
         up:function(){
+            if(keySHIFT()){
+                if(this.h>0)this.h--;
+                return;
+            }
+
             if(this.y>0)this.y--;
         },
+ 
         down:function(){
-            if(true)this.y++;
+            if(keySHIFT()){
+                this.h++;
+                return;
+            }
+
+            if(this.y<AHX.Song.TrackLength-1){
+                this.y++;
+            }
         },
         right:function(){
+            if(keySHIFT()){
+                this.w++;
+                return;
+            }
             if(this.x<3)this.x++;
         },
         left:function(){
+            if(keySHIFT()){
+                this.w--;
+                return;
+            }
             if(this.x>0)this.x--;
         },
         plus:function(){
@@ -216,11 +241,7 @@ const phraseEditor={
         // List instruments    
         for(let i=1;i<AHX.Song.Instruments.length;i++){
             let inst=AHX.Song.Instruments[i];
-            if(i==AHX.cursor.instnum){
-                A.pos(x,i+2).write(String(i).padStart(2, '0'), 1);            
-            }else{
-                A.pos(x,i+2).write(String(i).padStart(2, '0'));            
-            }
+            A.pos(x,i+2).write(String(i).padStart(2, '0'));            
             A.write(" "+inst.Name.toUpperCase(),12);        
         }
     },

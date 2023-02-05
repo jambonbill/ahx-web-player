@@ -7,31 +7,58 @@ const songEditor={
         w:0,//extend selection
         h:0,//extend selection
 
-        up:function(){
-            if(this.y>0)this.y--
+        reset:function(){
+            //reset selection
+            this.w=0;
+            this.h=0;
         },
+
+        up:function(){
+            if(keySHIFT()){
+                if(this.h>0)this.h--;
+                return;
+            }
+            if(this.y>0)this.y--;
+        },
+        
         down:function(){
+            if(keySHIFT()){
+                this.h++;
+                return;
+            }
             if(this.y<AHX.Song.PositionNr-1){
                 this.y++;
             }
         },
         left:function(){
+            if(keySHIFT()){
+                if(this.w>0)this.w--;
+                return;
+            }
             if(this.x>0)this.x--;
         },
+        
         right:function(){
+            if(keySHIFT()){
+                this.w++;
+                return;
+            }
             this.x++;
             if(this.x>3)this.x=0;
         },
+        
         plus:function(){
             let tn=AHX.Song.Positions[this.y].Track[this.x];
             AHX.Song.Positions[this.y].Track[this.x]++;
         },
+        
         minus:function(){
             let tn=AHX.Song.Positions[this.y].Track[this.x];
             if (tn>0) {
                 AHX.Song.Positions[this.y].Track[this.x]--;    
             }            
         },
+        
         suppr:function(){
             AHX.Song.Positions[this.y].Track[this.x]=0;
         }
@@ -90,6 +117,11 @@ const songEditor={
         A.pos(1,8).write("SPEED:",11);
         A.pos(1,9).write("MUL").write(String(AHX.Song.SpeedMultiplier).padStart(3, ' '));
         A.pos(1,10).write("TPO").write(String(AHX.Master.Output.Player.Tempo).padStart(3, ' '));
+
+        //kEYBOARD
+        if(keySHIFT())A.pos(1,12).write("SHIFT");
+        if(keyCTRL())A.pos(1,13).write("CTRL");
+        if(keyALT())A.pos(1,14).write("ALT");
         
     },
 
@@ -118,13 +150,7 @@ const songEditor={
                 A.pos(9,y).write('---',11);
             }
 
-            /*
-            if(pos==i){
-                A.pos(9,y).write(String(i).padStart(3, '0'), 1);
-            }else{
-                A.pos(9,y).write(String(i).padStart(3, '0'),11);    
-            }
-            */
+            
             if(!row){
                 A.write(" ---:-- ---:-- ---:-- ---:--",11);
                 continue;    
@@ -177,7 +203,7 @@ const songEditor={
         // List instruments    
         for(let i=1;i<AHX.Song.Instruments.length;i++){
             let inst=AHX.Song.Instruments[i];
-            if(i==AHX.cursor.instnum){
+            if(i==AHX.Editor.instnum){
                 A.pos(x,i+2).write(String(i).padStart(2, '0'), 1);            
             }else{
                 A.pos(x,i+2).write(String(i).padStart(2, '0'));            
@@ -197,6 +223,14 @@ const songEditor={
         let ALT =this._pressedKeys[18];
         
         switch (c) {
+            
+            case 13:
+                //Play at Cursor Position
+                console.log('Play at cursor pos');
+                AHX.Editor.play();
+                AHX.Master.Output.Player.PosNr=this.cursor.y;
+                break;
+
             case 37:this.cursor.left(); break;
             case 39:this.cursor.right();break;
             

@@ -1,5 +1,21 @@
 //PSP-AHX - Instruments
 const instrumentEditor={
+
+
+    instnum:1,//current Instrument
+    
+    cursor:{
+        x:0,
+        y:0,
+        up:function(){
+            //
+        },
+        down:function(){
+            //
+        },
+    },
+
+
     
     main:function(){
         frame().clear();
@@ -14,7 +30,7 @@ const instrumentEditor={
         let A=ascii().color(11);    
         line(0,0,cols(),0,160,1);
         line(0,1,cols(),1,119,15);    
-        A.pos(0,0).invert().write("INSTRUMENT #" + AHX.cursor.instnum, 1).write("/"+(AHX.Song.Instruments.length-1),15);
+        A.pos(0,0).invert().write("INSTRUMENT #" + this.instnum, 1).write("/"+(AHX.Song.Instruments.length-1),15);
         //A.invert(false);
     },
 
@@ -26,11 +42,11 @@ const instrumentEditor={
             let inst=AHX.Song.Instruments[i];
             if (!inst) {
                 A.pos(0,i+1).write('--').put(66);   
-                A.write('------------------');
+                //A.write('------------------');
                 continue;
             }
             
-            if(i==AHX.cursor.instnum){
+            if(i==this.instnum){
                 A.pos(0,i+1).write(String(i).padStart(2, '0'), 1);                 
             }else{
                 A.pos(0,i+1).write(String(i).padStart(2, '0'));                 
@@ -43,8 +59,9 @@ const instrumentEditor={
 
     editor:function(){
 
-        if(AHX.cursor.instnum>AHX.Song.Instruments.length-1){
-            AHX.cursor.instnum=1;//reset
+        //fix instnum out of range
+        if(this.instnum>AHX.Song.Instruments.length-1){
+            this.instnum=1;//reset
         }
 
         //main instrument editor
@@ -59,7 +76,7 @@ const instrumentEditor={
         
         
         //let ins=1;//Current Instrument
-        let I=AHX.Song.Instruments[AHX.cursor.instnum];
+        let I=AHX.Song.Instruments[this.instnum];
         if(!I)return;
 
         let E=null;//Envelope
@@ -112,7 +129,7 @@ const instrumentEditor={
     plist:function(){
         //Current instrument sequence/steps
         let x=40;
-        let I=AHX.Song.Instruments[AHX.cursor.instnum];
+        let I=AHX.Song.Instruments[this.instnum];
         
         if(!I)return;
         //if(!I.Plist)return;
@@ -175,10 +192,7 @@ const instrumentEditor={
         }   
     },
 
-    cursor:{
-        x:0,
-        y:0,
-    },
+    
 
     debug:function(){
         for(let i=0;i<16;i++){
@@ -188,13 +202,32 @@ const instrumentEditor={
     },
 
     keydown:function(ev){//keyboard events are forwarded here when displayed
-        //todo
-        console.log(ev);
-        /*
-        switch(ev){
+        let c = ev.which;
+        //console.log(ev);
+        
+        switch(c){
+            case 33://pgup - Previous Inst
+                if(this.instnum>1)this.instnum--;
+                break;
+            
+            case 34://pgdown - Next Inst
+                this.instnum++;
+                break;
+
+            //case 37:this.cursor.left(); break;
+            //case 39:this.cursor.right();break; 
+            case 38:this.cursor.up();   break;
+            case 40:this.cursor.down(); break;        
+            
+            case 46://suppr
+                this.cursor.suppr();break;        
+
+            //case 107:this.cursor.plus();break;
+            //case 109:this.cursor.minus();break;
+
             default:
-             console.log('instr.key',ev);
+             console.log('instr.key',c);
         }
-        */
+        
     }
 }

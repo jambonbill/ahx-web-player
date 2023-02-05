@@ -1,10 +1,20 @@
 # TODO
-
+- Cursor selection (with SHIFT)
 - Splash Screen
-- Extract song instruments, and save to DB
-- Config Screen (SpeedMult. Tempo, Name)
+- Extract song instruments (PHP), and save to DB
 
-- Instrument Presets
+- Config Screen (SpeedMult. Tempo, Name)
+- Duplicate Song Row with Ctrl+Shift+D !
+
+- Trim Song
+
+- Detect and remove Unused instruments
+- Play row only
+- Add a WORKING 'playing' flag (in AHXPlayer) 
+
+- Show Playing/Loop/Stop (in AHXPlayer)
+
+- Instrument Presets !
 
 - Input notes from keyboard
 
@@ -28,3 +38,4 @@
 - Save to JSON
 - Load from JSON
 - Cursor independent from song position
+- Play at positions (RETURN)

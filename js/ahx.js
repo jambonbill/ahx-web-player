@@ -704,7 +704,8 @@ function AHXPlayer(waves) {
 		TimingValue: 0,
 		PatternBreak: 0,
 		MainVolume: 0x40,
-		Playing: 0, 
+		Playing: 0, //its `always` playing (even after stop is called)
+		PlayPattern:0,//Play Song|Pattern (jambon feature)
 		Tempo: 0,
 		PosNr: 0, 
 		PosJump: 0,
@@ -762,17 +763,26 @@ function AHXPlayer(waves) {
 		},
 		
 		PlayIRQ: function() {
+			
 			if(this.Tempo > 0 && this.StepWaitFrames <= 0) {
+			
 				if(this.GetNewPosition) {
-					var NextPos = (this.PosNr+1==this.Song.PositionNr)?0:(this.PosNr+1);
+			
+					var NextPos = (this.PosNr+1==this.Song.PositionNr)?0:(this.PosNr+1);//original
+					//var NextPos = this.PosNr;
+					
+					console.log('GetNewPosition', NextPos);
+
 					if(this.PosNr >= this.Song.Positions.length){
 						console.log("Track range error? 01");
 						this.PosNr = this.Song.PositionNr-1;
 					}
+			
 					if(NextPos >= this.Song.Positions.length){
 						console.log("Track range error? 02");
 						NextPos = this.Song.PositionNr-1;
 					}
+			
 					for(var i = 0; i < 4; i++) {
 						this.Voices[i].Track = this.Song.Positions[this.PosNr].Track[i];
 						this.Voices[i].Transpose = this.Song.Positions[this.PosNr].Transpose[i];
@@ -784,18 +794,25 @@ function AHXPlayer(waves) {
 				for(var i = 0; i < 4; i++) this.ProcessStep(i);
 				this.StepWaitFrames = this.Tempo;
 			}
+			
 			//DoFrameStuff
 			for(var i = 0; i < 4; i++) this.ProcessFrame(i);
 			this.PlayingTime++;
 			if(this.Tempo > 0 && --this.StepWaitFrames <= 0) {
+				
 				if(!this.PatternBreak) {
+				
 					this.NoteNr++;
 					if(this.NoteNr >= this.Song.TrackLength) {
-						this.PosJump = this.PosNr+1;
+						
+						this.PosJump = this.PosNr+1;//Go to next row (Play Song)
+						//this.PosJump = this.PosNr;//OR Stick to same row (Play Pattern / LOOP)
+						
 						this.PosJumpNote = 0;
 						this.PatternBreak = 1;
 					}
 				}
+
 				if(this.PatternBreak) {
 					this.PatternBreak = 0;
 					this.NoteNr = this.PosJumpNote;
@@ -804,16 +821,18 @@ function AHXPlayer(waves) {
 					this.PosJump = 0;
 					if(this.PosNr == this.Song.PositionNr) {
 						this.SongEndReached = 1;
-						this.PosNr = this.Song.Restart;
+						this.PosNr = this.Song.Restart;//loop position
 					}
 					this.GetNewPosition = 1;
 				}
 			}
+			
 			//RemainPosition
 			for(var a = 0; a < 4; a++) this.SetAudio(a);
 		},
 
 		NextPosition: function() {
+			//console.log('NextPosition');//i dont know when its used ?
 			this.PosNr++;
 			if(this.PosNr == this.Song.PositionNr) this.PosNr = 0;
 			this.StepWaitFrames = 0;
@@ -1454,6 +1473,12 @@ function AHXMasterWebKit(output) {
 	this.AudioContext = null;
 	this.AudioNode = null;
 	
+	this._playing=false;
+	
+	this.Playing=function(){
+		return this._playing;
+	}
+	
 	this.Play = function(song) { // song = AHXSong()
 		
 		if(song){
@@ -1472,6 +1497,7 @@ function AHXMasterWebKit(output) {
 		
 		if(this.AudioNode) 
 			this.AudioNode.disconnect();
+		
 		this.AudioNode = this.AudioContext.createScriptProcessor(this.bufferSize);
 		var theMaster = this;
 		this.AudioNode.onaudioprocess = function (event) {
@@ -1482,7 +1508,6 @@ function AHXMasterWebKit(output) {
 
 	this.mixer = function(e) {
 		var want = this.bufferSize;
-
 		var buffer = e.outputBuffer;
 		var left = buffer.getChannelData(0);
 		var right = buffer.getChannelData(1);
@@ -1516,14 +1541,16 @@ function AHXMasterWebKit(output) {
 
 	this.Stop = function() {
 		this.AudioNode.disconnect();
+		this._playing=false;
 	}
 
 	this.init();
 	this.reset();
 	return this;
 }
+
 /*
-function AHXMasterMoz(output) {
+function AHXMasterMoz(output) { // make sure to update the changes (this.Playing) when im done
 	function AudioDataDestination(sampleRate, readFn) {
 	  // Initialize the audio output.
 	  var audio = new Audio();

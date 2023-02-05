@@ -5,7 +5,7 @@
  * @author : jambonbill <[<email address>]>
  */
 
-namespace AHX;
+namespace AMIGA;
 
 use Exception;
 

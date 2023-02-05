@@ -81,20 +81,22 @@ var initKeyboard=function(){
 
 		if (c===9) {//TAB
 			//note : ctrl+tab not doable
-			AHX.cursor.pageToggle();
+			AHX.Editor.pageToggle();
 			return;
 		}
-		
+	
+		/*
 		if(c==13) {//RETURN
 			AHX.Editor.play();
 		}
-
+		*/
+	
 		if(c==27) {//ESC
 			AHX.Editor.stop()
 		}
 
 		//Forward keys to the current page
-		switch(AHX.cursor.page){			
+		switch(AHX.Editor.page){			
 			case 0:songEditor.keydown(ev);	break;
 			case 1:phraseEditor.keydown(ev);break;
 			case 2:instrumentEditor.keydown(ev);break;

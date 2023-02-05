@@ -11,38 +11,25 @@ const btnStop=document.getElementById('btnStop');
 
 //Song
 const btnAddRow=document.getElementById('btnAddRow');
-
-btn0.onclick=function(){
-	//AHX.Song = new AHXSong();
-    //AHX.Song.LoadSong('ahx/disissid4/1.ahx', ()=>AHX.play());
-    //AHX.Song.LoadSong('ahx/Jazz_NL/06.ahx', ()=>AHX.Editor.play());
-    AHX.Editor.load('ahx/Jazz_NL/06.ahx');
-}
-
-btn1.onclick=function(){
-    //AHX.Song = new AHXSong();
-    AHX.Song.LoadSong('ahx/Doh/dreams-odyssee.ahx', ()=>AHX.Editor.play());
-    
-}
-
+/*
+btn0.onclick=()=>AHX.Editor.load('ahx/Jazz_NL/06.ahx');
+btn1.onclick=()=>AHX.Song.LoadSong('ahx/Doh/dreams-odyssee.ahx');
 btn2.onclick=function(){
-    //AHX.Song = new AHXSong();    
     AHX.Song.LoadSong('ahx/MortimerTwang/amanda.ahx', ()=>AHX.Editor.play());
 }
 
 btn3.onclick=function(){
-    //AHX.Song = new AHXSong();    
-    AHX.Song.LoadSong('ahx/Hoffman/GET TO THE CHOPPER!.ahx', ()=>AHX.Editor.play());
+    AHX.Song.LoadSong('php/chopper.ahx', ()=>AHX.Editor.play());
 }
 
 btn4.onclick=function(){
-    //AHX.Song = new AHXSong();    
     AHX.Song.LoadSong('ahx/JazzCat/rainmaking.ahx',()=>AHX.Editor.play());
 }
-
+*/
 btnShuffle.onclick=()=>shuffle();
 
-//btnPlay.onclick=()=>AHX.Master.Play();
+btnPlay.onclick=()=>AHX.Master.Play();
+
 //btnStop.onclick=()=>AHX.stop();
 
 btnNew.onclick=()=>AHX.newProject();
@@ -165,6 +152,12 @@ btnSave.onclick=function(){
     saveAsJson(AHX.Song.Name+'.ahx.json');
 }
 
+btnTrash.onclick=function(){
+    console.log("Trash");
+    if(!confirm("Delete this piece of garbage ?"))return;
+    //delete
+}
+
 function saveAsJson(fn){
     if(!fn)return;
     var data = JSON.stringify(AHX.Song.toJson(),null);
@@ -197,7 +190,12 @@ async function shuffle() {
     //AHX.Song = new AHXSong();
     AHX.Song.LoadSong(json.filename, function() { // asynchronously load a AHX song into memory
         //AHX.play();
+        //AHX.optimize();
+        AHX.optimizeUnusedInstruments();
+        AHX.trimSong();//delete empty end-parts
+
         console.log("Loaded and ready to play!", AHX.Song);
+
         AHX.Master.Play(AHX.Song);
     });
 }
