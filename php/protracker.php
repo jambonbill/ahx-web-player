@@ -1,8 +1,8 @@
 <?php
 /**
- * AHX File manipulation
- * Converted from https://github.com/bryc/ahx-web-player/blob/master/ahx.js
- * @author : jambonbill <[<email address>]>
+ * Amiga Protracker File Reader
+ * @author : jambonbill <jambonbill@gmail.com>
+ * http://coppershade.org/articles/More!/Topics/Protracker_File_Format/
  */
 
 namespace AMIGA;
@@ -26,6 +26,83 @@ class Protracker{
 	private $patterns=[];
 	
 
+	public function periodToNote(int $period)
+	{
+		// Periodtable for Tuning 0, Normal
+	  	// C-0 to B-0 : 1712,1616,1525,1440,1357,1281,1209,1141,1077,1017, 961, 907
+	  	// C-1 to B-1 : 856,808,762,720,678,640,604,570,538,508,480,453
+	  	// C-2 to B-2 : 428,404,381,360,339,320,302,285,269,254,240,226
+	  	// C-3 to B-3 : 214,202,190,180,170,160,151,143,135,127,120,113
+	  	// C-4 to B-4 : 107, 101,  95,  90,  85,  80,  76,  71,  67,  64,  60,  57
+	  	//
+		
+		$table=[];
+		$table[0]=-1;//---
+		$table[1712]=0;//C-0
+		$table[1616]=1;
+		$table[1525]=2;
+		$table[1440]=3;
+		$table[1357]=4;
+		$table[1281]=5;
+		$table[1209]=6;
+		$table[1141]=7;
+		$table[1077]=8;
+		$table[1017]=9;
+		$table[961]=10;
+		$table[907]=11;
+		$table[856]=12;//C-1
+		$table[808]=13;
+		$table[762]=14;
+		$table[720]=15;
+		$table[678]=16;
+		$table[640]=17;
+		$table[604]=18;
+		$table[570]=19;
+		$table[538]=20;
+		$table[508]=21;
+		$table[480]=22;
+		$table[453]=23;
+		$table[428]=24;//C-2
+		$table[404]=25;
+		$table[381]=26;
+		$table[360]=27;
+		$table[339]=28;
+		$table[320]=29;
+		$table[302]=30;
+		$table[285]=31;
+		$table[269]=32;
+		$table[254]=33;
+		$table[240]=34;
+		$table[226]=35;
+		$table[214]=36;//C-3
+		$table[202]=37;
+		$table[190]=38;
+		$table[180]=39;
+		$table[170]=40;
+		$table[160]=41;
+		$table[151]=42;
+		$table[143]=43;
+		$table[135]=44;
+		$table[127]=45;
+		$table[120]=46;
+		$table[113]=47;
+		// C-4 to B-4 : 107, 101,  95,  90,  85,  80,  76,  71,  67,  64,  60,  57
+		return $table[$period];
+	}
+
+
+	public function noteToString(int $note)
+	{
+		if($note<=0){
+			return "---";
+		}
+
+    	$not=$note%12;
+    	$notes=['C-','C#','D-','D#','E-','F-','F#','G-','G#','A-','A#','B-'];
+    	$oct=floor($note/12);
+    	return $notes[$not].$oct;
+	}
+
 
 	public function loadSong(string $filename)
 	{
@@ -39,36 +116,40 @@ class Protracker{
 		
 		$this->decode($handle);
 		fclose($handle);
-
-
 	}
+
+
 
 	public function decode($handle)
 	{
 		$this->title=fread($handle,20);//(bytes 0-3)
 		
 		//SAMPLES
-		for ($i=0;$i<32;$i++) {
+		for ($i=0;$i<31;$i++) {
 			$samplename = fread($handle,22);;//Sample's name, padded with null bytes.
 			$this->samples[]=$samplename;
-			$sl=unpack('S',fread($handle,2))[1];//Sample length in words (1 word = 2 bytes).
+			
+
+			// All 2 byte lengths are stored with the Hi-byte first, as is usual on the Amiga/Motorola (big-endian format).
+			
+			$sl=unpack('n',fread($handle,2))[1];//Sample length in words (1 word = 2 bytes).
 			
 			$a=unpack('C',fread($handle,1))[1];//Lowest four bits represent a signed nibble (-8..7) which is the finetune value for the sample. 
 			
 			$a=unpack('C',fread($handle,1))[1];//Volume of sample. Legal values are 0..64
 			
-			$a=unpack('S',fread($handle,2))[1];//Start of sample repeat offset in words.
-			$sr=unpack('S',fread($handle,2))[1];//Length of sample repeat in words.
-			echo "sr=$sr\n";
-
+			$a=unpack('n',fread($handle,2))[1];//Start of sample repeat offset in words.
+			$sr=unpack('n',fread($handle,2))[1];//Length of sample repeat in words.
+			//echo "sr=$sr\n";
 		}
 
 
 		$nsp=unpack('C',fread($handle,1))[1];//Number of song positions
 		$this->nsp=$nsp;
+		//echo "nsp=$nsp\n";
 
 		$skip=unpack('C',fread($handle,1))[1];//Historically set to 127, but can be safely ignored.
-		echo "skip=$skip\n";
+		//echo "skip=$skip\n";
 		
 		for ($i=0;$i<128;$i++) {//Pattern table: patterns to play in each song position (0..127)
           	//Each byte has a legal value of 0..63 
@@ -76,18 +157,117 @@ class Protracker{
 			$this->pattern_table[]=$pattern;
 		}
 
+		//trim pattern table (0 at the end)
+		while($this->pattern_table[count($this->pattern_table)-1]==0){
+			array_pop($this->pattern_table);
+		}
+
+		//Get highest value
+		$max=max($this->pattern_table);
+		//echo "max=$max\n";
+
 		//The four letters "M.K."
 		$this->MK=fread($handle,4);
+
+		//Pattern data
+		for($pat=0; $pat<$max; $pat++) {
+			for($row=0; $row<64; $row++) {
+				for($track=0; $track<4; $track++) {				
+						
+					/*
+					 _____byte 1_____   byte2_    _____byte 3_____   byte4_
+					/                \ /      \  /                \ /      \
+					0000          0000-00000000  0000          0000-00000000
+
+					Upper four    12 bits for    Lower four    Effect command.
+					bits of sam-  note period.   bits of sam-
+					ple number.                  ple number.
+					*/
+				
+					$b1=unpack('C',fread($handle,1))[1];//byte 1
+					$hb1=$b1>>4;//upper 4bits
+					$lb1=$b1& 0x0f;//last 4
+					$b2=unpack('C',fread($handle,1))[1];//byte 2 
+					$b3=unpack('C',fread($handle,1))[1];//etc
+					$hb3=$b3>>4;//upper 4bits
+					$lb3=$b3& 0x0f;//last 4
+					$b4=unpack('C',fread($handle,1))[1];//...
+					
+					//Decode into Note/Effect/Sample num
+					$period=$b2+$lb1*256;
+					$note=$this->periodToNote($period);
+					if($this->noteToString($note)=="B-0"){
+						exit("note=$note");
+					}
+					$dat=['note'=>$note, 'str'=>$this->noteToString($note), 'command'=>$lb3, 'fx'=>$b4, 'samplenum'=>$hb3+$hb1*16];
+
+					$this->patterns[$pat][$row][$track]=$dat;
+					
+				}
+			}
+		}
 	}
 
+	
+	/**
+	 * Return pattern data
+	 * @param  int    $n [description]
+	 * @return [type]    [description]
+	 */
+	public function pattern(int $n)
+	{
+		return $this->patterns[$n];
+	}
 
+	/**
+	 * Return a pattern as a pahge of text
+	 * @param  int    $n [description]
+	 * @return [type]    [description]
+	 */
+	public function patternText(int $n)
+	{
+		
+		function zeropad($num, $lim)
+		{
+		   return (strlen($num) >= $lim) ? $num : zeropad("0" . $num);
+		}
+		
+		
+		$data=$this->pattern($n);
+		$str="Pattern #".$n."\n";
+
+		for($i=0;$i<64;$i++){
+			$step=$data[$i];
+			$str.=sprintf("%02d",$i);
+			$str.='| ';
+			foreach($step as $cell){
+				$str.=$cell['str'];	
+				$str.=' ';	
+				if($cell['samplenum']){
+					$str.=sprintf("%02d",dechex($cell['samplenum']));
+				}else{
+					$str.='  ';
+				}
+				$str.=' ';		
+				$str.=strtoupper(dechex($cell['command']));
+				$str.=sprintf("%02d",dechex($cell['fx']));
+				$str.=' | ';
+			}
+			$str.="\n";
+			
+		}
+
+		return $str;
+	}
+
+	
 	public function debug(){
 		$dat=[];
 		$dat['filename']=$this->filename;
 		$dat['title']=$this->title;
-		$dat['samples']=$this->samples;
-		$dat['nsp']=$this->nsp;
-		$dat['pattern_table']=$this->pattern_table;
+		//$dat['samples']=$this->samples;
+		//$dat['nsp']=$this->nsp;
+		//$dat['pattern_table']=$this->pattern_table;
 		$dat['MK']=$this->MK;
 		return $dat;
 	}
@@ -123,8 +303,8 @@ Module Format:
 2         Length of sample repeat in words. Only loop if greater than 1.
 (End of this sample's data.. each sample uses the same format and they
  are stored sequentially)
-N.B. All 2 byte lengths are stored with the Hi-byte first, as is usual
-     on the Amiga (big-endian format).
+
+N.B. All 2 byte lengths are stored with the Hi-byte first, as is usual on the Amiga (big-endian format).
 
 1         Number of song positions (ie. number of patterns played
           throughout the song). Legal values are 1..128.
