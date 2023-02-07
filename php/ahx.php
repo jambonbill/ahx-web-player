@@ -336,7 +336,7 @@ class AHX{
 		$dat['SpeedMultiplier']=$this->SpeedMultiplier;
 		//$dat['Positions']=$this->Positions;
 		//$dat['Tracks']=$this->Tracks;
-		$dat['Instruments']=$this->Instruments;
+		//$dat['Instruments']=$this->Instruments;
 		//$dat['Subsongs']=$this->Subsongs;
 		return $dat;
 	}

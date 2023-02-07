@@ -42,7 +42,6 @@ const instrumentEditor={
             let inst=AHX.Song.Instruments[i];
             if (!inst) {
                 A.pos(0,i+1).write('--').put(66);   
-                //A.write('------------------');
                 continue;
             }
             
@@ -53,7 +52,11 @@ const instrumentEditor={
             }
             
             A.put(66); 
-            A.write(inst.Name.toUpperCase(),12);        
+            if(i==this.instnum){
+                A.write(inst.Name.toUpperCase(),1);
+            }else{
+                A.write(inst.Name.toUpperCase());
+            }        
         }
     },
 

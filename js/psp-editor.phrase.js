@@ -19,7 +19,7 @@ const phraseEditor={
                 if(this.h>0)this.h--;
                 return;
             }
-
+            this.reset();
             if(this.y>0)this.y--;
         },
  
@@ -28,16 +28,18 @@ const phraseEditor={
                 this.h++;
                 return;
             }
-
+            this.reset();
             if(this.y<AHX.Song.TrackLength-1){
                 this.y++;
             }
         },
+
         right:function(){
             if(keySHIFT()){
                 this.w++;
                 return;
             }
+            this.reset();
             if(this.x<3)this.x++;
         },
         left:function(){
@@ -45,6 +47,7 @@ const phraseEditor={
                 this.w--;
                 return;
             }
+            this.reset();
             if(this.x>0)this.x--;
         },
         plus:function(){
@@ -66,6 +69,7 @@ const phraseEditor={
             }
         },
         suppr:function(){
+            /*
             let step=AHX.Song.Tracks[this.phrasenum][this.y];
             switch(this.x){
                 case 0:step.Note=0;break;
@@ -73,6 +77,16 @@ const phraseEditor={
                 case 2:step.FX=0;break;
                 case 3:step.FXParam=0;break;
             }
+            */
+            this.coords().forEach((x,y)=>{
+                let step=AHX.Song.Tracks[this.phrasenum][y];
+                switch(x){
+                    case 0:step.Note=0;break;
+                    case 1:step.Instrument=0;break;
+                    case 2:step.FX=0;break;
+                    case 3:step.FXParam=0;break;
+                }
+            });
         },
         setNote:function(note){
             if(this.x!=0)return;
@@ -80,6 +94,21 @@ const phraseEditor={
             step.Note=(note+1)+(this.octave*12);
             step.Instrument=this.inst;
             this.y++;
+        },
+        hit:function(x,y){
+            if(x >= this.x && x <= this.x+this.w && y >= this.y && y <=this.y+this.h){
+                return true;
+            }
+            return false;
+        },
+        coords:function(){
+            let list=[];
+            for(let y=this.y;y<=this.y+this.h;y++){
+                for(let x=this.x;x<=this.x+this.w;x++){
+                    list.push({'x':x,'y':y});
+                }
+            }
+            return list;
         }
     },
 
@@ -140,6 +169,7 @@ const phraseEditor={
             let y=i+2;
             
             A.invert(false);
+
             A.pos(9,y).write(String(i).padStart(3, '0'),11);//000
             
             let track=AHX.Song.Tracks[pnum];
@@ -155,14 +185,16 @@ const phraseEditor={
             
             
             
-            if(this.cursor.y==i && this.cursor.x==0)A.invert(true);
-            A.write(midiNoteToString(step.Note-1));//Note 
+            //if(this.cursor.y==i && this.cursor.x==0)A.invert(true);
+            A.invert(this.cursor.hit(0,i));
+            A.write(midiNoteToString(step.Note-1));//Note  [0]
             
             A.invert(false).put(32,1);//space
             
-            if(this.cursor.y==i && this.cursor.x==1)A.invert(true);
+            //if(this.cursor.y==i && this.cursor.x==1)A.invert(true);
+            A.invert(this.cursor.hit(1,i));
             if(step.Instrument==0){
-                A.write("--");//No instrument
+                A.write("--");//No instrument - [1]
             }else{
                 A.write(String(step.Instrument).padStart(2, '0'));//Instrument    
             }
@@ -171,13 +203,15 @@ const phraseEditor={
             A.invert(false).put(32,1);//space
             
             //Effect
-            if(this.cursor.y==i && this.cursor.x==2)A.invert(true);
-            A.write(fx); //fx command 0-F 
+            //if(this.cursor.y==i && this.cursor.x==2)A.invert(true);
+            A.invert(this.cursor.hit(2,i));
+            A.write(fx); //fx command 0-F - [2]
             A.invert(false);
 
-            if(this.cursor.y==i && this.cursor.x==3)A.invert(true);
+            //if(this.cursor.y==i && this.cursor.x==3)A.invert(true);
+            A.invert(this.cursor.hit(3,i));
             if(fxParam==0){
-                A.write('--'); //Fx Param 00-FF            
+                A.write('--'); //Fx Param 00-FF     - [3]       
             }else{
                 A.write(String(fxParam).padStart(2, '0')); //Fx Param 00-FF            
             }

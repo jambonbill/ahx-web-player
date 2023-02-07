@@ -395,6 +395,7 @@ function AHXVoice() {
 		ADSR: AHXEnvelope(), // frames/delta fixed 8:8
 		Instrument: null, // current instrument
 		InstrPeriod: 0, TrackPeriod: 0, VibratoPeriod: 0,
+		LastPeriod:0,//jambon change: remember last note, so we can preview
 		NoteMaxVolume: 0, PerfSubVolume: 0, TrackMasterVolume: 0x40,
 		NewWaveform: 0, Waveform: 0, PlantSquare: 0, PlantPeriod: 0, IgnoreSquare: 0,
 		TrackOn: 1, FixedNote: 0,
@@ -1060,6 +1061,7 @@ function AHXPlayer(waves) {
 				else 
 					this.Voices[v].NoteDelayWait--;
 			}
+			
 			if(this.Voices[v].HardCut) {
 				var NextInstrument;
 				if(this.NoteNr+1 < this.Song.TrackLength) 
@@ -1077,6 +1079,7 @@ function AHXPlayer(waves) {
 						this.Voices[v].HardCut = 0;
 				}
 			}
+			
 			if(this.Voices[v].NoteCutOn) {
 				if(this.Voices[v].NoteCutWait <= 0) {
 					this.Voices[v].NoteCutOn = 0;
@@ -1089,6 +1092,7 @@ function AHXPlayer(waves) {
 				} else 
 					this.Voices[v].NoteCutWait--;
 			}
+			
 			//adsrEnvelope
 			if(this.Voices[v].ADSR.aFrames) {
 				this.Voices[v].ADSRVolume += this.Voices[v].ADSR.aVolume; // Delta
@@ -1102,10 +1106,12 @@ function AHXPlayer(waves) {
 				this.Voices[v].ADSRVolume += this.Voices[v].ADSR.rVolume; // Delta
 				if(--this.Voices[v].ADSR.rFrames <= 0) this.Voices[v].ADSRVolume = this.Voices[v].Instrument.Envelope.rVolume << 8;
 			}
+			
 			//VolumeSlide
 			this.Voices[v].NoteMaxVolume = this.Voices[v].NoteMaxVolume + this.Voices[v].VolumeSlideUp - this.Voices[v].VolumeSlideDown;
 			if(this.Voices[v].NoteMaxVolume < 0) this.Voices[v].NoteMaxVolume = 0;
 			if(this.Voices[v].NoteMaxVolume > 0x40) this.Voices[v].NoteMaxVolume = 0x40;
+			
 			//Portamento
 			if(this.Voices[v].PeriodSlideOn) {
 				if(this.Voices[v].PeriodSlideWithLimit) {
@@ -1150,6 +1156,10 @@ function AHXPlayer(waves) {
 						this.Voices[v].InstrPeriod = this.Voices[v].PerfList.Entries[Cur].Note;
 						this.Voices[v].PlantPeriod = 1;
 						this.Voices[v].FixedNote = this.Voices[v].PerfList.Entries[Cur].Fixed;
+						//jambon zone
+						//if(this.Voices[v].PerfList.Entries[Cur].Note>0){
+							this.Voices[v].LastPeriod=this.Voices[v].PerfList.Entries[Cur].Note;//jambon change
+						//}
 					}
 				}
 			} else {

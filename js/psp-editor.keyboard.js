@@ -95,6 +95,29 @@ var initKeyboard=function(){
 			AHX.Editor.stop()
 		}
 
+		if (ALT) {
+			//move around pages
+			switch(c){
+				case 37://key left
+					if(AHX.Editor.page>0)AHX.Editor.page--;
+					break;
+				case 39://key right
+					if(AHX.Editor.page<2)AHX.Editor.page++;
+					break;
+					/*
+				case 97://1
+					AHX.Editor.page=0;break;
+				case 98://2
+					AHX.Editor.page=1;break;
+				case 99:
+					AHX.Editor.page=2;break;
+					*/
+
+			}
+			ev.preventDefault();
+		}
+		
+		console.log(c);
 		//Forward keys to the current page
 		switch(AHX.Editor.page){			
 			case 0:songEditor.keydown(ev);	break;

@@ -9,6 +9,10 @@ const songEditor={
 
         reset:function(){
             //reset selection
+            if(this.y>AHX.Song.PositionNr-1){
+                this.x=0;
+                this.y=0;
+            }
             this.w=0;
             this.h=0;
         },
@@ -18,7 +22,10 @@ const songEditor={
                 if(this.h>0)this.h--;
                 return;
             }
-            if(this.y>0)this.y--;
+            if(this.y>0){
+                this.y--;
+                this.reset();
+            }
         },
         
         down:function(){
@@ -28,6 +35,7 @@ const songEditor={
             }
             if(this.y<AHX.Song.PositionNr-1){
                 this.y++;
+                this.reset();
             }
         },
         left:function(){
@@ -35,7 +43,10 @@ const songEditor={
                 if(this.w>0)this.w--;
                 return;
             }
-            if(this.x>0)this.x--;
+            this.reset();
+            if(this.x>0){
+                this.x--;                
+            }
         },
         
         right:function(){
@@ -43,13 +54,19 @@ const songEditor={
                 this.w++;
                 return;
             }
+            this.reset();
             this.x++;
-            if(this.x>3)this.x=0;
+            if(this.x>3){
+                this.x=0;
+            }
         },
         
         plus:function(){
-            let tn=AHX.Song.Positions[this.y].Track[this.x];
-            AHX.Song.Positions[this.y].Track[this.x]++;
+            //let tn=AHX.Song.Positions[this.y].Track[this.x];
+            //AHX.Song.Positions[this.y].Track[this.x]++;
+            this.coords().forEach(c=>{
+                AHX.Song.Positions[c.y].Track[c.x]++;
+            });
         },
         
         minus:function(){
@@ -58,9 +75,34 @@ const songEditor={
                 AHX.Song.Positions[this.y].Track[this.x]--;    
             }            
         },
-        
+        copy:function(){
+            //todo
+        },
+        paste:function(){
+            //todo
+        },
         suppr:function(){
-            AHX.Song.Positions[this.y].Track[this.x]=0;
+            console.log(this.coords());
+            this.coords().forEach(c=>{
+                AHX.Song.Positions[c.y].Track[c.x]=0;    
+                AHX.Song.Positions[c.y].Transpose[c.x]=0;    
+            });
+            
+        },
+        hit:function(x,y){// hit test (colision)
+            if(x >= this.x && x <= this.x+this.w && y >= this.y && y <=this.y+this.h){
+                return true;
+            }
+            return false;
+        },
+        coords:function(){//return list of selection x/y coordinates
+            let list=[];
+            for(let y=this.y;y<=this.y+this.h;y++){
+                for(let x=this.x;x<=this.x+this.w;x++){
+                    list.push({'x':x,'y':y});
+                }
+            }
+            return list;
         }
     },
     
@@ -74,6 +116,7 @@ const songEditor={
         this.menu();
         this.song();
         this.instrumentPreview();
+        this.notePreview();
         debug();
     },
 
@@ -125,15 +168,32 @@ const songEditor={
         
     },
 
+    notePreview:function(){//realtime note preview
+        let A=ascii().color(15);
+        let x=1;
+        let y=40;
+        if(!AHX.Master.Output.Player.Voices.length)return;
+        
+        //if(AHX.Master.Output.Player.Voices[0]){
+        for(let i=0;i<4;i++){
+            A.pos(x,y+i).write("V"+i);
+            //let note=AHX.Master.Output.Player.Voices[i].InstrPeriod;
+            let note=AHX.Master.Output.Player.Voices[i].LastPeriod;//Ca marche, mais pas non plus super top
+            
+            if (note>0) {
+                A.pos(x+3,y+i).write(midiNoteToString(note+1));
+            }
+        }
+        
+    },
+
     song:function(){
         
         let A=ascii().color(15);
             
         let pos=AHX.Master.Output.Player.PosNr;
         
-        //draw a line at PosNr "if playing"
-        //line(8, pos+2,48,pos+2,64, 2);//play position
-
+       
         for(let i=0;i<rows()-2;i++){
             
             let prow=pos+i;//row preview
@@ -156,22 +216,25 @@ const songEditor={
                 continue;    
             }
             
-            for(let x=0;x<4;x++){//4 tracks       
-
-                A.invert(false);
+            for(let x=0;x<4;x++){//4 tracks
                 
                 let mute=false;
                 //!AHX.Master.Output.Player.Voices[x].TrackOn;
                 
-                if(pos==i&&!mute){
+                if(pos==i){
                     A.put(93,1);// PIXEL Arrow show song position
                 }else{
                     A.put(32);// space
                 }
 
                 //Invert Cursor Position (Pos/x)
+                /*
                 if(i==this.cursor.y && x==this.cursor.x){
                     A.invert(true);
+                }
+                */
+                if(this.cursor.hit(x,i)){
+                    A.invert(true);   
                 }
 
                 if(row.Track[x]==0){//000
@@ -191,7 +254,10 @@ const songEditor={
                     //no transpose value
                     A.write(":--",11);
                 }
-                //A.write(" ");
+                
+
+                A.invert(false);//unselect
+                
             }
         }
     },
@@ -239,6 +305,22 @@ const songEditor={
             
             case 46://suppr
                 this.cursor.suppr();break;        
+
+
+            case 67://C
+                if(CTRL)this.cursor.copy();
+                break;
+            
+
+            case 68://D - Duplicate row
+                //
+                break;
+
+
+            case 86:
+                if(CTRL)this.cursor.paste();
+                break;
+
 
             //+/-
             case 107:this.cursor.plus();break;
