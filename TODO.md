@@ -1,22 +1,27 @@
 # TODO
+
+- Understand how its possible to play two song at once ?
+- Allow Scroll Song 
 - Cursor selection (with SHIFT)
+- Compress song data (Json to b64 ?)
+- Keyboard play (test instrument)
+
 - Splash Screen
+
 - Extract song instruments (PHP), and save to DB
 
 - Config Screen (SpeedMult. Tempo, Name)
-- Duplicate Song Row with Ctrl+Shift+D !
 
-- Trim Song
+- Remove Unused instruments 
 
-- Detect and remove Unused instruments
-- Play row only
+- Play song row only (ft2 Play pattern)
 - Add a WORKING 'playing' flag (in AHXPlayer) 
 
 - Show Playing/Loop/Stop (in AHXPlayer)
 
 - Instrument Presets !
+- Load Instrument
 
-- Input notes from keyboard
 
 - Load multiple songs
 
@@ -29,7 +34,7 @@
 - MultiTrack Phrase editor ?
 
 ### DOING
-- Play, when rack is stopped (speed 0)
+- Play, when track is stopped (speed 0)
 
 ### DONE
 - Fix Instrument pointer out of range
@@ -39,3 +44,9 @@
 - Load from JSON
 - Cursor independent from song position
 - Play at positions (RETURN)
+- Auto Save/Load local-storage -> AHX.freeze(), AHX.restore();
+- Detect Unused instruments
+- Duplicate Song Row with Ctrl+Shift+D !
+- Delete Song Row with Ctrl+Suppr
+- Trim Song
+- Input notes from keyboard
