@@ -29,7 +29,7 @@ AHX.Editor={
         console.log("play", "(todo)");
         //this.Master.Output.pos = [0,0,0,0];
         AHX.Master.Play(AHX.Song);//start
-        //AHX.Master.Play();//continue
+        AHX.Master.Play();//continue
     },
     
     stop:function(){
@@ -44,92 +44,19 @@ AHX.Editor={
     },
 }
 
-//This is 
-//AHX.Nav={}
-//Editor ?
-//AHX.Ed={}
-/*
-AHX.cursor={//this is crap
-    
-    page:0,// 0=>main - 1=>phrase 2=>instrument
-    track:0,// 0-3
-    
-    pos:0,// Songpos
-    patpo:0,// Pattern pos
-    
-    phrasenum:0,//current phrase (phrase Editor)
-    instnum:1,//Instrument(editor) number. Zero do not exist here.
-    
-    
-    
-    up:function(){
-        //move cursor up
-        //if(AHX.Master.Output.Player.NoteNr>0)AHX.Master.Output.Player.NoteNr--;
-    },
-    
-    down:function(){
-        //move cursor down
-        //if(AHX.Master.Output.Player.NoteNr<32)AHX.Master.Output.Player.NoteNr++;
-    },
-
-    left:function(){
-        this.track--;
-        if(this.track<0)this.track=3;
-    },
-    
-    right:function(){
-        this.track++;
-        if(this.track>3)this.track=0;
-    },
-    
-    pageUp:function(){
-        //Pos--
-        switch (this.page) {
-            case 0://main
-                if(AHX.Master.Output.Player.PosNr>0)AHX.Master.Output.Player.PosNr--;
-                break;
-            
-            case 1://phrase
-                if(this.phrasenum>0)this.phrasenum--;
-                break;
-            
-            case 2://inst
-                //if(this.instnum>0)this.instnum--;
-                if(this.instnum>1)this.instnum--;//no zero
-                break;
-        }
-    },
-    pageDown:function(){
-        switch (this.page) {
-            
-            case 0://main
-                if(AHX.Master.Output.Player.PosNr<AHX.Song.Positions.length-1){
-                    AHX.Master.Output.Player.PosNr++;
-                }
-                break;
-            
-            case 1:
-                if(this.phrasenum<AHX.Song.Tracks.length-1)this.phrasenum++;
-                break;
-            
-            case 2:
-                if(this.instnum<AHX.Song.Instruments.length-1)this.instnum++;
-                break;
-
-        }
-    }
-}
-*/
 
 AHX.init = function() {
 	console.log('AHX.init');
-    this.Master = AHXMaster();
-    this.Song = new AHXSong();
-    this.newProject();
+    AHX.Master = AHXMaster();
+    AHX.Song = new AHXSong();
+    AHX.newProject();
 };
 
+
 AHX.newProject=function(){
+    
     console.log('newProject()');
+    
     AHX.Master = AHXMaster();
     AHX.Song = new AHXSong();  
     
@@ -341,8 +268,7 @@ AHX.trimSong=function(){
     //Delete unused Parts/Positons (000) at the end of the song
     
     function trimable(){
-        // Check if the last part can be erased safely
-        
+        // Check if the last part can be erased safely        
         if(AHX.Song.Positions.length<2)return false;
 
         let row=AHX.Song.Positions[AHX.Song.Positions.length-1];
@@ -363,4 +289,35 @@ AHX.trimSong=function(){
        console.log(deleted+" parts deleted");
     }
     
+}
+
+
+// READ/WRITE song to localstorage
+
+AHX.freeze=function(){
+    console.log('freeze()');
+    //Save current song to localStorage
+    var data = JSON.stringify(AHX.Song.toJson(),null);
+    localStorage.setItem('AHXSong',data);
+}
+
+AHX.restore=function(){
+    console.log('restore()');
+    let data=localStorage.getItem('AHXSong');
+    if(!data)return;
+    let json=JSON.parse(data);
+    if(AHX.Song.loadJson(json)){
+        //play !
+        console.log('ready to play!');
+    }else{
+        console.error("Error loading json");
+    }
+}
+
+
+AHX.restore();
+
+window.onbeforeunload = function() {
+    AHX.freeze();
+    return 'You have unsaved changes!';
 }

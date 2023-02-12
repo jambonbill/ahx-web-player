@@ -15,8 +15,14 @@ const songEditor={
             }
             this.w=0;
             this.h=0;
-        },
+            
+            this.setTrack();
 
+        },
+        setTrack:function(){//read cursor coords, and set the current Track number 
+            //AHX.Song.Positions[this.y].Track[x];
+            phraseEditor.setPhrase(AHX.Song.Positions[this.y].Track[this.x]);
+        },
         up:function(){
             if(keySHIFT()){
                 if(this.h>0)this.h--;
@@ -43,10 +49,11 @@ const songEditor={
                 if(this.w>0)this.w--;
                 return;
             }
-            this.reset();
+            
             if(this.x>0){
                 this.x--;                
             }
+            this.reset();
         },
         
         right:function(){
@@ -54,18 +61,22 @@ const songEditor={
                 this.w++;
                 return;
             }
+            
+            if(this.x<3)this.x++;
+            if(this.x>3)this.x=0;//unnecessary
             this.reset();
-            this.x++;
-            if(this.x>3){
-                this.x=0;
-            }
         },
         
         plus:function(){
             //let tn=AHX.Song.Positions[this.y].Track[this.x];
             //AHX.Song.Positions[this.y].Track[this.x]++;
             this.coords().forEach(c=>{
-                AHX.Song.Positions[c.y].Track[c.x]++;
+                let track=AHX.Song.Positions[c.y].Track[c.x];
+                if(track<AHX.Song.TrackNr){
+                    AHX.Song.Positions[c.y].Track[c.x]++;
+                }else{
+                    console.log("Must create new track #"+AHX.Song.TrackNr);
+                }
             });
         },
         
@@ -112,25 +123,30 @@ const songEditor={
 
     main:function(){
         frame().clear();
+
+        //this.bufferPreview();//BG : cool effect
+        
         this.navbar();
-        this.menu();
+        //this.menu();
         this.song();
         this.instrumentPreview();
-        this.notePreview();
-        debug();
+        
+        //debug();
     },
 
     navbar:function(){
-         let A=ascii().color(15);
-    
+        let A=ascii().color(15);
         // Show SONG Title
         line(0,0,cols(),0,160,1);
         line(0,1,cols(),1,119,15);
         
-        A.pos(0,0).invert().write(AHX.songTitle().toUpperCase(),1);
+        A.pos(0,0).invert().write(AHX.songTitle().toUpperCase(),1);//TITLE
+        A.pos(0,2).invert(false).write("SONG:",1);
        
         //MUTED//
+        /*
         A.pos(13,0);
+
         for(let i=0;i<4;i++){
             if(!AHX.Master.Output.Player.Voices[i])continue;
             let on=AHX.Master.Output.Player.Voices[i].TrackOn;
@@ -139,60 +155,21 @@ const songEditor={
             }else{
                 A.write("       ",1);
             }
-        }
-        //AHX.Master.Output.Player.VoiceToggle(0)
-        
+        } 
+        */ 
         //Current SONG Position 
+        A.invert(true);
         A.pos(74,0).write(String(AHX.Master.Output.Player.PosNr).padStart(3,'0')+".").write(AHX.Master.Output.Player.NoteNr);
 
     },
 
-    menu:function(){
-        //MINI MENU
-        let A=ascii().color(15);
-        A.pos(1,2).write("POS").write(String(AHX.Master.Output.Player.PosNr).padStart(3, ' '),1);
-        A.pos(1,3).write("LEN").write(String(AHX.Song.PositionNr-1).padStart(3, ' '));
-        A.pos(1,4).write("RES").write(String(AHX.Song.Restart).padStart(3, ' '));
-        A.pos(1,5).write("TRL").write(String(AHX.Song.TrackLength).padStart(3, ' '));
-        A.pos(1,6).write(" SS").write(String(AHX.Song.SubsongNr).padStart(3, ' '));
-        //A.pos(1,7).write("SSN").write(String(0).padStart(3, '0'));
-        //A.pos(1,8).write("SSP").write(String(0).padStart(3, '0'));
-        A.pos(1,8).write("SPEED:",11);
-        A.pos(1,9).write("MUL").write(String(AHX.Song.SpeedMultiplier).padStart(3, ' '));
-        A.pos(1,10).write("TPO").write(String(AHX.Master.Output.Player.Tempo).padStart(3, ' '));
 
-        //kEYBOARD
-        if(keySHIFT())A.pos(1,12).write("SHIFT");
-        if(keyCTRL())A.pos(1,13).write("CTRL");
-        if(keyALT())A.pos(1,14).write("ALT");
-        
-    },
-
-    notePreview:function(){//realtime note preview
-        let A=ascii().color(15);
-        let x=1;
-        let y=40;
-        if(!AHX.Master.Output.Player.Voices.length)return;
-        
-        //if(AHX.Master.Output.Player.Voices[0]){
-        for(let i=0;i<4;i++){
-            A.pos(x,y+i).write("V"+i);
-            //let note=AHX.Master.Output.Player.Voices[i].InstrPeriod;
-            let note=AHX.Master.Output.Player.Voices[i].LastPeriod;//Ca marche, mais pas non plus super top
-            
-            if (note>0) {
-                A.pos(x+3,y+i).write(midiNoteToString(note+1));
-            }
-        }
-        
-    },
-
-    song:function(){
+    song:function(){/*display song sequence */
         
         let A=ascii().color(15);
             
         let pos=AHX.Master.Output.Player.PosNr;
-        
+        let max=AHX.Song.TrackNr;
        
         for(let i=0;i<rows()-2;i++){
             
@@ -207,12 +184,13 @@ const songEditor={
             if(row){
                 A.pos(9,y).write(String(i).padStart(3, '0'),11);    
             }else{
-                A.pos(9,y).write('---',11);
+                A.pos(9,y).write('   ',11);
             }
 
             
             if(!row){
-                A.write(" ---:-- ---:-- ---:-- ---:--",11);
+                //A.write(" ---:-- ---:-- ---:-- ---:--",11);
+                //A.write(" -      -      -      -     ",11);
                 continue;    
             }
             
@@ -239,6 +217,8 @@ const songEditor={
 
                 if(row.Track[x]==0){//000
                     A.write(String(row.Track[x]).padStart(3, '0'),11);                       
+                }else if(row.Track[x]>AHX.Song.TrackNr){//out of range
+                    A.write(String(row.Track[x]).padStart(3, '0'),2);//RED   
                 }else{
                     A.write(String(row.Track[x]).padStart(3, '0'));                       
                 }
@@ -262,7 +242,7 @@ const songEditor={
         }
     },
 
-    instrumentPreview:function(){    
+    instrumentPreview:function(){/* need graphical improvement */    
         let A=ascii();
         let x=50;
         A.pos(x,2).write("-- INSTRUMENTS --------------");        
@@ -278,16 +258,19 @@ const songEditor={
         }
     },
     
-    _pressedKeys:{},
+
+    
+
+    //_pressedKeys:{},
     
     keydown:function(ev){
         let c = ev.which;
-        
+        /*
         this._pressedKeys[c] = true;//capture special keys
         let SHIFT=this._pressedKeys[16];
         let CTRL=this._pressedKeys[17];
         let ALT =this._pressedKeys[18];
-        
+        */
         switch (c) {
             
             case 13:
@@ -297,28 +280,55 @@ const songEditor={
                 AHX.Master.Output.Player.PosNr=this.cursor.y;
                 break;
 
-            case 37:this.cursor.left(); break;
-            case 39:this.cursor.right();break;
-            
+            case 37:
+                if(keyALT()){
+                    return;
+                }
+                this.cursor.left(); break;
+            case 39:
+                if(keyALT()){
+                    AHX.Editor.page=1;
+                    return;
+                }
+                this.cursor.right();
+                break;            
             case 38:this.cursor.up();   break;
             case 40:this.cursor.down(); break;        
             
             case 46://suppr
+                
+                if(keyCTRL()){
+                    //delete row
+                    console.log('delete row #'+this.cursor.y);
+                    AHX.Song.Positions.splice(this.cursor.y, 1);
+                    //Adjust Song length
+                    AHX.Song.PositionNr=AHX.Song.Positions.length;
+                    return;
+                }
                 this.cursor.suppr();break;        
 
 
             case 67://C
-                if(CTRL)this.cursor.copy();
+                if(keyCTRL())this.cursor.copy();
                 break;
             
 
             case 68://D - Duplicate row
-                //
+                if(keyCTRL())console.log('duplicate row #'+this.cursor.y);
+                let row=AHX.Song.Positions[this.cursor.y];
+                //let identity = (x) => x;
+                //console.log(row.map(identity));
+                AHX.Song.Positions.splice(this.cursor.y, 0, JSON.parse(JSON.stringify(row)));//deep clone
+                
+                //Adjust Song length
+                AHX.Song.PositionNr=AHX.Song.Positions.length;
+
+                ev.preventDefault();
                 break;
 
 
             case 86:
-                if(CTRL)this.cursor.paste();
+                if(keyCTRL())this.cursor.paste();
                 break;
 
 

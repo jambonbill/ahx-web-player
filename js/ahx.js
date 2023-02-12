@@ -772,7 +772,7 @@ function AHXPlayer(waves) {
 					var NextPos = (this.PosNr+1==this.Song.PositionNr)?0:(this.PosNr+1);//original
 					//var NextPos = this.PosNr;
 					
-					console.log('GetNewPosition', NextPos);
+					//console.log('GetNewPosition', NextPos);
 
 					if(this.PosNr >= this.Song.Positions.length){
 						console.log("Track range error? 01");
@@ -852,10 +852,10 @@ function AHXPlayer(waves) {
 			if(!this.Voices[v].TrackOn) return;
 			this.Voices[v].VolumeSlideUp = this.Voices[v].VolumeSlideDown = 0;
 		
-			var Note = this.Song.Tracks[this.Song.Positions[this.PosNr].Track[v]][this.NoteNr].Note;
-			var Instrument = this.Song.Tracks[this.Song.Positions[this.PosNr].Track[v]][this.NoteNr].Instrument;
-			var FX = this.Song.Tracks[this.Song.Positions[this.PosNr].Track[v]][this.NoteNr].FX;
-			var FXParam = this.Song.Tracks[this.Song.Positions[this.PosNr].Track[v]][this.NoteNr].FXParam;
+			var Note = 			this.Song.Tracks[this.Song.Positions[this.PosNr].Track[v]][this.NoteNr].Note;
+			var Instrument = 	this.Song.Tracks[this.Song.Positions[this.PosNr].Track[v]][this.NoteNr].Instrument;
+			var FX = 			this.Song.Tracks[this.Song.Positions[this.PosNr].Track[v]][this.NoteNr].FX;
+			var FXParam = 		this.Song.Tracks[this.Song.Positions[this.PosNr].Track[v]][this.NoteNr].FXParam;
 		
 			switch(FX) {
 				case 0x0: // Position Jump HI
@@ -1156,10 +1156,6 @@ function AHXPlayer(waves) {
 						this.Voices[v].InstrPeriod = this.Voices[v].PerfList.Entries[Cur].Note;
 						this.Voices[v].PlantPeriod = 1;
 						this.Voices[v].FixedNote = this.Voices[v].PerfList.Entries[Cur].Fixed;
-						//jambon zone
-						//if(this.Voices[v].PerfList.Entries[Cur].Note>0){
-							this.Voices[v].LastPeriod=this.Voices[v].PerfList.Entries[Cur].Note;//jambon change
-						//}
 					}
 				}
 			} else {
@@ -1485,17 +1481,23 @@ function AHXMasterWebKit(output) {
 	
 	this._playing=false;
 	
-	this.Playing=function(){
+	this.Playing=function(){//MEH
 		return this._playing;
 	}
 	
 	this.Play = function(song) { // song = AHXSong()
 		
-		if(song){
-			this.Output.Player.InitSong(song);
-			this.Output.Player.InitSubsong(0);
+		if(!song){
+			console.error("no song");
+			return;
 		}
-		
+
+		this.Output.Player.InitSong(song);
+		this.Output.Player.InitSubsong(0);
+		this.Continue();
+	}
+
+	this.Continue=function(){
 		if(!this.AudioContext) 
 			this.AudioContext = new AudioContext();
 		

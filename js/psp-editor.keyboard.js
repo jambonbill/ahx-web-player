@@ -70,21 +70,29 @@ var initKeyboard=function(){
 
 		let c = ev.which;
 		
-		//console.log("Key",c);
+		//console.log("Key",c,ev.);
 
 		_pressedKeys[c] = true;//capture special keys
 		//pressedKeys(_pressedKeys);//crappy but heh
-		let SHIFT=_pressedKeys[16];
-		let CTRL=_pressedKeys[17];
-		let ALT =_pressedKeys[18];
+		//let SHIFT=_pressedKeys[16];
+		//let CTRL=_pressedKeys[17];
+		//let ALT =_pressedKeys[18];
 
-
-		if (c===9) {//TAB
+		
+		if (c===9) {//TAB (is bad!)
 			//note : ctrl+tab not doable
-			AHX.Editor.pageToggle();
+			//AHX.Editor.pageToggle();
+			return;
+		}	
+		
+		/*
+		if(c>112&&c<123){// F KEYS
+			console.log("Fkey");
+			ev.preventDefault();//doesnt prevent much
 			return;
 		}
-	
+		*/
+		
 		/*
 		if(c==13) {//RETURN
 			AHX.Editor.play();
@@ -95,29 +103,12 @@ var initKeyboard=function(){
 			AHX.Editor.stop()
 		}
 
-		if (ALT) {
+		if (keyALT()) {
 			//move around pages
-			switch(c){
-				case 37://key left
-					if(AHX.Editor.page>0)AHX.Editor.page--;
-					break;
-				case 39://key right
-					if(AHX.Editor.page<2)AHX.Editor.page++;
-					break;
-					/*
-				case 97://1
-					AHX.Editor.page=0;break;
-				case 98://2
-					AHX.Editor.page=1;break;
-				case 99:
-					AHX.Editor.page=2;break;
-					*/
-
-			}
 			ev.preventDefault();
 		}
 		
-		console.log(c);
+		//console.log(c);
 		//Forward keys to the current page
 		switch(AHX.Editor.page){			
 			case 0:songEditor.keydown(ev);	break;

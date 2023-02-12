@@ -105,6 +105,31 @@ btnInstrAdd.onclick=()=>{
     AHX.Song.Instruments.push(I);
 }
 
+btnInstrSave.onclick=()=>{
+    //console.log('')
+    let instnum=instrumentEditor.instnum;
+    console.log(AHX.Song.Instruments[instnum]);
+    let data = JSON.stringify(AHX.Song.Instruments[instnum]);
+    
+    //let data = AHX.Song.toString();
+    saveAsJso('ahxinstr_'+instnum+'.json', data);
+
+    function saveAsJso(fn,data){
+        if(!fn)return;
+        console.log(data.length + " bytes")
+        let el=document.createElement('a');
+        el.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+        el.setAttribute('download', fn);
+        el.style.display = 'none';
+        document.body.appendChild(el);
+        el.click();
+        document.body.removeChild(el);
+    }
+}
+
+
+
+
 
 btnFullScreen.onclick=()=>{
     // Get the element that we want to take into fullscreen mode
@@ -147,21 +172,36 @@ document.getElementById('loadFromJSON').onchange=function(evt) {
     reader.readAsText(file);
 };
 
+document.getElementById('loadInstrument').onchange=function(evt) {
+    console.clear();
+    evt.stopPropagation();
+    evt.preventDefault();
+    var file = evt.target.files[0];
+    var reader = new FileReader();
+    var data = false;
+    reader.onload = (function(theFile) {
+        return function(e) {
+            data = JSON.parse(e.target.result);
+            if (!data) return;
+            console.log(data);
+            AHX.Song.Instruments.push(data);
+            AHX.Song.InstrumentNr++;
+        }
+    })(file);
+    reader.readAsText(file);
+};
+
 btnSave.onclick=function(){
-    console.log('save');
+    console.log('save as json');
     saveAsJson(AHX.Song.Name+'.ahx.json');
 }
 
-btnTrash.onclick=function(){
-    console.log("Trash");
-    if(!confirm("Delete this piece of garbage ?"))return;
-    //delete
-}
 
 function saveAsJson(fn){
     if(!fn)return;
     var data = JSON.stringify(AHX.Song.toJson(),null);
     //let data = AHX.Song.toString();
+    console.log(data.length + " bytes")
     let el=document.createElement('a');
     el.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
     el.setAttribute('download', fn);
@@ -187,7 +227,7 @@ async function shuffle() {
     const json = await response.json();
     console.log('shuffle()', json.filename); 
   
-    //AHX.Song = new AHXSong();
+    AHX.Song = new AHXSong();
     AHX.Song.LoadSong(json.filename, function() { // asynchronously load a AHX song into memory
         //AHX.play();
         //AHX.optimize();

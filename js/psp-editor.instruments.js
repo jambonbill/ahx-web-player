@@ -4,6 +4,10 @@ const instrumentEditor={
 
     instnum:1,//current Instrument
     
+    setInstrument:function(n){
+        this.instnum=n;//controls later
+    },
+
     cursor:{
         x:0,
         y:0,
@@ -23,14 +27,15 @@ const instrumentEditor={
         this.list();
         this.editor();
         //this.plist();
-        this.debug();
+        this.help();
     },
 
     navbar:function(){        
         let A=ascii().color(11);    
         line(0,0,cols(),0,160,1);
-        line(0,1,cols(),1,119,15);    
-        A.pos(0,0).invert().write("INSTRUMENT #" + this.instnum, 1).write("/"+(AHX.Song.Instruments.length-1),15);
+        line(0,1,cols(),1,119,15);
+        A.pos(0,0).invert().write(AHX.songTitle().toUpperCase(),1);//TITLE    
+        A.pos(0,2).invert(false).write("INSTRUMENTS",15);
         //A.invert(false);
     },
 
@@ -46,9 +51,9 @@ const instrumentEditor={
             }
             
             if(i==this.instnum){
-                A.pos(0,i+1).write(String(i).padStart(2, '0'), 1);                 
+                A.pos(0,i+2).write(String(i).padStart(2, '0'), 1);                 
             }else{
-                A.pos(0,i+1).write(String(i).padStart(2, '0'));                 
+                A.pos(0,i+2).write(String(i).padStart(2, '0'));                 
             }
             
             A.put(66); 
@@ -195,14 +200,44 @@ const instrumentEditor={
         }   
     },
 
-    
+    help:function(){
+        let x=68;
+        let y=2;
+        let A=ascii().pos(x,y).color(11);
+        
+        //Vertical line
+        line(x-1,2,x-1,44,66,12);
 
-    debug:function(){
-        for(let i=0;i<16;i++){
-            let p=cols()*45-16;
-            poke(p+i,[250,i]);
-        }
+        //Waveforms
+        A.pos(x,y+0).write("WAVEFORMS",1);
+        A.pos(x,y+1).write("-----------");
+        A.pos(x,y+2).write("0:HOLD WAVE");
+        A.pos(x,y+3).write("1:TRIANGLE ");
+        A.pos(x,y+4).write("2:SAWTOOTH ");
+        A.pos(x,y+5).write("3:SQUARE   ");
+        A.pos(x,y+6).write("4:WH.NOISE ");
+        A.pos(x,y+7).write("*:FIXED    ");
+        
+        //Commands
+        A.pos(x,y+10).write("COMMANDS",1);
+        A.pos(x,y+11).write("-----------");
+        A.pos(x,y+12).write("0:INIT.FILT");
+        A.pos(x,y+13).write("1:SLIDE UP ");
+        A.pos(x,y+14).write("2:SLIDE DN ");
+        A.pos(x,y+15).write("3:INIT SQR ");
+        A.pos(x,y+16).write("4:TOGGLEMOD");
+        A.pos(x,y+17).write("5:JUMP2STEP");
+        A.pos(x,y+18).write("C:VOLUME   ");
+        A.pos(x,y+19).write("F:SPEED    ");
+        
+        //Keyboard
+        A.pos(x,y+24).write("KEYBOARD",1);
+        A.pos(x,y+25).write("-----------");
+        A.pos(x,y+26).write("PGUP:PREV  ");
+        A.pos(x,y+27).write("PGDN:NEXT  ");
+        
     },
+
 
     keydown:function(ev){//keyboard events are forwarded here when displayed
         let c = ev.which;
@@ -217,11 +252,24 @@ const instrumentEditor={
                 this.instnum++;
                 break;
 
-            //case 37:this.cursor.left(); break;
-            //case 39:this.cursor.right();break; 
+            case 37://Left
+                if(keyALT()){
+                    AHX.Editor.page=1;
+                    return;
+                }
+                break;
+            
+            case 39://right                
+                if(keyALT()){
+                    //AHX.Editor.page=2;
+                    return;
+                }                
+                break;
+
             case 38:this.cursor.up();   break;
             case 40:this.cursor.down(); break;        
             
+
             case 46://suppr
                 this.cursor.suppr();break;        
 
