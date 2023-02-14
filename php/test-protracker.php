@@ -12,7 +12,7 @@ $PT->loadSong($files[1]);
 
 print_r($PT->debug());
 
-$dat=$PT->pattern(0);
+//$dat=$PT->pattern(0);
 //print_r($dat[0]);
-echo $PT->patternText(0);
+//echo $PT->patternText(0);
 exit('done');

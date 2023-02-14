@@ -60,6 +60,12 @@ class Protracker{
 	 */
 	private $patterns=[];
 	
+
+	/**
+	 * Debug flag
+	 * @var boolean
+	 */
+	private $debug=false;
 	
 
 	public function loadSong(string $filename)
@@ -147,7 +153,12 @@ class Protracker{
 
 		//The four letters "M.K."
 		$this->MK=fread($handle,4);
-
+		
+		if($this->MK!='M.K.'){
+			throw new Exception("not a valid M.K.", 1);
+		}
+		//echo "MK=".$this->MK."\n";exit;
+		
 		//Pattern data
 		for($pat=0; $pat<$max; $pat++) {
 			for($row=0; $row<64; $row++) {
@@ -162,7 +173,14 @@ class Protracker{
 					bits of sam-  note period.   bits of sam-
 					ple number.                  ple number.
 					*/
-				
+					$p=ftell($handle);
+					if($p>=$this->filesize){
+						throw new Exception("Pointer out of range", 1);
+						return;
+					}
+
+					$bytes=
+
 					$b1=unpack('C',fread($handle,1))[1];//byte 1
 					$hb1=$b1 >> 4;//upper 4bits
 					$lb1=$b1 & 0x0f;//last 4
@@ -175,9 +193,11 @@ class Protracker{
 					//Decode into Note/Effect/Sample num
 					$period=$b2+$lb1*256;
 					$note=$this->periodToNote($period);
+					
 					if($this->noteToString($note)=="B-0"){
 						exit("note=$note");
 					}
+					
 					$dat=['note'=>$note, 'str'=>$this->noteToString($note), 'command'=>$lb3, 'fx'=>$b4, 'samplenum'=>$hb3+$hb1*16];
 
 					$this->patterns[$pat][$row][$track]=$dat;					
@@ -252,7 +272,8 @@ class Protracker{
 		$dat['title']=$this->title;
 		//$dat['samples']=$this->samples;
 		//$dat['nsp']=$this->nsp;
-		//$dat['pattern_table']=$this->pattern_table;
+		$dat['pattern_table']=$this->pattern_table;
+		$dat['pattern_count']=count($this->patterns);
 		$dat['MK']=$this->MK;
 		return $dat;
 	}
@@ -276,6 +297,8 @@ class Protracker{
 		
 		$table=[];
 		$table[0]=-1;//---
+		$table[1]=-1;//---
+		$table[1295]=-1;//C-0
 		$table[1712]=0;//C-0
 		$table[1616]=1;
 		$table[1525]=2;
@@ -325,7 +348,10 @@ class Protracker{
 		$table[120]=46;
 		$table[113]=47;
 		// C-4 to B-4 : 107, 101,  95,  90,  85,  80,  76,  71,  67,  64,  60,  57
-		return $table[$period];
+		if(isset($table[$period])){
+			return $table[$period];	
+		}
+		return 0;
 	}
 
 

@@ -21,7 +21,7 @@ class AHX{
 	private $filename = ''; 
 	private $filesize = 0; 
 	private $Id = '';//(bytes 0-3) This is the ID header. 
-	private $NamePrt = 0;
+	private $NamePtr = 0;
 	private $Name = '';
 	private $Restart = 0;
 	private $PositionNr = 0;
@@ -299,7 +299,25 @@ class AHX{
 				SBPtr += 4;
 			}
 			*/
-			
+			for($j = 0; $j < $Instrument['PList']['Length']; $j++) {
+				//var Entry = AHXPlistEntry();
+				$b0=unpack('C',fread($handle,1))[1];
+				$b1=unpack('C',fread($handle,1))[1];
+				$b2=unpack('C',fread($handle,1))[1];
+				$b3=unpack('C',fread($handle,1))[1];
+				$Entry=[];
+				$Entry['FX']=[];
+				$Entry['FX'][0] = ($b0>>2)&7;
+				$Entry['FX'][1] = ($b0>>5)&7;
+				$Entry['Waveform'] = ($b0<<1)&6 | ($b1>>7);
+				$Entry['Fixed'] = ($b1>>6)&1;
+				$Entry['Note'] = $b1&0x3f;
+				$Entry['FXParam'][0] = $b2;
+				$Entry['FXParam'][1] = $b3;
+				$Instrument['PList']['Entries'][]=$Entry;
+				//SBPtr += 4;
+			}
+
 			$this->Instruments[$i]=$Instrument;
 		}
 	}
