@@ -13,3 +13,8 @@ body{
 canvas#screen{
     width:1280px;   
 }
+
+hr{
+    color:#333;
+    border:solid 1px;
+}
