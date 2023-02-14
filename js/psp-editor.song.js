@@ -6,7 +6,14 @@ const songEditor={
         y:0,
         w:0,//extend selection
         h:0,//extend selection
+        songScroll:0,
 
+        init:function(){
+            this.x=0;
+            this.y=0;
+            this.w=0;
+            this.h=0;
+        },
         reset:function(){
             //reset selection
             if(this.y>AHX.Song.PositionNr-1){
@@ -14,10 +21,8 @@ const songEditor={
                 this.y=0;
             }
             this.w=0;
-            this.h=0;
-            
+            this.h=0;            
             this.setTrack();
-
         },
         setTrack:function(){//read cursor coords, and set the current Track number 
             //AHX.Song.Positions[this.y].Track[x];
@@ -42,6 +47,9 @@ const songEditor={
             if(this.y<AHX.Song.PositionNr-1){
                 this.y++;
                 this.reset();
+            }
+            if(this.y>42){
+                this.songScroll++;
             }
         },
         left:function(){
@@ -166,13 +174,12 @@ const songEditor={
 
     song:function(){/*display song sequence */
         
-        let A=ascii().color(15);
-            
+        let A=ascii().color(15);            
         let pos=AHX.Master.Output.Player.PosNr;
         let max=AHX.Song.TrackNr;
        
-        for(let i=0;i<rows()-2;i++){
-            
+        for(let i=0;i<AHX.Song.Positions.length;i++){
+
             let prow=pos+i;//row preview
             let row=AHX.Song.Positions[i];
             let y=i+2;
@@ -189,8 +196,6 @@ const songEditor={
 
             
             if(!row){
-                //A.write(" ---:-- ---:-- ---:-- ---:--",11);
-                //A.write(" -      -      -      -     ",11);
                 continue;    
             }
             
@@ -205,12 +210,6 @@ const songEditor={
                     A.put(32);// space
                 }
 
-                //Invert Cursor Position (Pos/x)
-                /*
-                if(i==this.cursor.y && x==this.cursor.x){
-                    A.invert(true);
-                }
-                */
                 if(this.cursor.hit(x,i)){
                     A.invert(true);   
                 }
@@ -222,8 +221,7 @@ const songEditor={
                 }else{
                     A.write(String(row.Track[x]).padStart(3, '0'));                       
                 }
-                
-                
+                    
                 if(row.Transpose[x]>0){
                     A.put(43,7);// PLUS
                     A.write(String(row.Transpose[x]).padStart(2, '0'));
@@ -233,11 +231,9 @@ const songEditor={
                 }else{
                     //no transpose value
                     A.write(":--",11);
-                }
-                
+                }   
 
                 A.invert(false);//unselect
-                
             }
         }
     },
@@ -261,16 +257,9 @@ const songEditor={
 
     
 
-    //_pressedKeys:{},
-    
     keydown:function(ev){
         let c = ev.which;
-        /*
-        this._pressedKeys[c] = true;//capture special keys
-        let SHIFT=this._pressedKeys[16];
-        let CTRL=this._pressedKeys[17];
-        let ALT =this._pressedKeys[18];
-        */
+
         switch (c) {
             
             case 13:
@@ -278,6 +267,16 @@ const songEditor={
                 console.log('Play at cursor pos');
                 AHX.Editor.play();
                 AHX.Master.Output.Player.PosNr=this.cursor.y;
+                break;
+
+            case 33://pgup
+                if (this.cursor.songScroll>0) {
+                    this.cursor.songScroll--;
+                }
+                break;
+            
+            case 34://pgdn
+                this.cursor.songScroll++;
                 break;
 
             case 37:
@@ -341,15 +340,8 @@ const songEditor={
                 break;
         }      
         
-    },
-
-    keyup:function(ev){
-        //todo release pressed keys
     }
-
 }
-
-
 
 
 function debug(){

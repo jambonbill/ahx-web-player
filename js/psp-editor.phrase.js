@@ -26,6 +26,13 @@ const phraseEditor={
         //phrasenum:0,//Current phrase Number
         //inst:1,//current instrument number
         clipboard:{},
+        init:function(){
+            console.log('cursor.init');
+            this.x=0;
+            this.y=0;
+            this.w=0;
+            this.h=0;
+        },
         reset:function(){//reset selection
             this.w=0;
             this.h=0;
@@ -120,6 +127,23 @@ const phraseEditor={
                 step.Note=newnote;
                 step.Instrument=phraseEditor.instrument;
                 this.y++;
+            }
+        },
+        setValue:function(val){
+            console.log('setValue()',val);
+            let step=AHX.Song.Tracks[phraseEditor.phraseNumber][this.y];
+            switch(this.x){
+                case 1:
+                    step.Instrument=val;
+                    phraseEditor.setInstrument(val);
+                    break;
+                case 2:
+                    step.FX=val;
+                    break;
+                case 3:
+                    step.FXParam=val;
+                    break;
+
             }
         },
         backspace:function(){
@@ -307,8 +331,13 @@ const phraseEditor={
         // List instruments    
         for(let i=1;i<AHX.Song.Instruments.length;i++){
             let inst=AHX.Song.Instruments[i];
-            A.pos(x,i+2).write(String(i).padStart(2, '0'));            
-            A.write(" "+inst.Name.toUpperCase(),12);        
+            if(i==phraseEditor.instrument){
+                color=1;
+            }else{
+                color=12;
+            }
+            A.pos(x,i+2).write(String(i).padStart(2, '0'),color);            
+            A.write(" "+inst.Name.toUpperCase(),color);        
         }
     },
 
@@ -385,8 +414,14 @@ const phraseEditor={
 
 
             default:            
+                
                 let note=keyCodeToMidiNote(c);
                 this.cursor.setNote(note);
+                
+                let val=keyCodeToNumber(c);
+                if(val>=0){
+                    this.cursor.setValue(val);
+                }
                 console.log("Key:",c);
         }
     }
@@ -423,6 +458,16 @@ function keyCodeToNumber(c){//Keyboard number input
         case 57:
         case 105:
             return 9;break;
+
+        case 65://a
+        case 66://b
+        case 67://c
+        case 68://d
+        case 69://e
+        case 70://f
+            /* a-f */
+            return c-65+10;
+            break;
     }
-    return 0;
+    return -1;
 }
