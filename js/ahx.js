@@ -251,6 +251,7 @@ function AHXSong() {
 				if(Transpose & 0x80) Transpose = (Transpose & 0x7f) - 0x80; // signed char
 				Pos.Transpose.push(Transpose);
 			}
+			
 			this.Positions.push(Pos);
 		}
 
@@ -328,7 +329,7 @@ function AHXSong() {
 
 function AHXPosition() {
 	return {
-		Track: [],
+		Track: [],//n tracks
 		Transpose: []
 	}
 }
@@ -739,6 +740,7 @@ function AHXPlayer(waves) {
 
 		InitSong: function(song) { // song: AHXSong()
 			this.Song = song;
+			this.onInit();
 		},
 		
 		InitSubsong: function(Nr) {
@@ -793,6 +795,7 @@ function AHXPlayer(waves) {
 					this.GetNewPosition = 0;
 				}
 				for(var i = 0; i < 4; i++) this.ProcessStep(i);
+				this.onStep();
 				this.StepWaitFrames = this.Tempo;
 			}
 			
@@ -823,8 +826,10 @@ function AHXPlayer(waves) {
 					if(this.PosNr == this.Song.PositionNr) {
 						this.SongEndReached = 1;
 						this.PosNr = this.Song.Restart;//loop position
+						this.onSongEndReached();
 					}
 					this.GetNewPosition = 1;
+					this.onPatternBreak(this.PosNr);
 				}
 			}
 			
@@ -841,6 +846,7 @@ function AHXPlayer(waves) {
 		},
 		
 		PrevPosition: function() {
+			//is it used ?
 			this.PosNr--;
 			if(this.PosNr < 0) this.PosNr = 0;
 			this.StepWaitFrames = 0;
@@ -1402,6 +1408,23 @@ function AHXPlayer(waves) {
 		VoiceToggle:function(Voice){//Toggle Mute (jambonbill)
 			if(Voice < 0 || Voice > 3) return;
 			this.Voices[Voice].TrackOn = !this.Voices[Voice].TrackOn;
+		},
+
+		//Jambon AHX Events
+		onInit:function(){
+			console.log('onInit!');
+		},
+		onStart:function(){
+			//console.log('onStart!');
+		},
+		onStep:function(n){
+			//console.log('onStep!');
+		},
+		onPatternBreak:function(n){
+			//console.log('onPatternBreak!',n);
+		},
+		onSongEndReached:function(){
+			//console.log('onSongEndReached!');	
 		}
 	}
 }
@@ -1470,7 +1493,10 @@ function AHXOutput(player) {
 				this.Player.PlayIRQ();
 				mb = this.MixChunk(NrSamples, mb);
 			} // frames
-		}
+		},
+
+
+
 	}
 }
 
