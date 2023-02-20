@@ -7,24 +7,11 @@ $AHX=new AMIGA\AHX();
 //$AHX->loadSong('ahx/amanda.ahx');
 $AHX->loadSong('ahx/doh.ahx');
 
-$debug=$AHX->debug();
-print_r($debug);
-
-//print_r($AHX->Positions());
-echo "Instrument #1 ";
-//print_r($AHX->Instruments()[1]);
-
-/*
-$str=json_encode($AHX->Instruments()[1]);
-$f=fopen("/tmp/inst.json","w+");
-fwrite($f,$str);
-fclose($f);
-*/
-
 $i=0;
 foreach($AHX->Instruments() as $inst){
-    $str=json_encode($AHX->Instruments()[1]);
-    $filename="/tmp/inst_$i.json";
+    $str=json_encode($inst);
+    $md5=md5($str);
+    $filename="./tmp/$md5.json";
     $f=fopen($filename,"w+");
     fwrite($f,$str);
     fclose($f);
