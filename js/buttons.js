@@ -11,9 +11,11 @@ const btnStop=document.getElementById('btnStop');
 
 //Song
 const btnAddRow=document.getElementById('btnAddRow');
-/*
+
 btn0.onclick=()=>AHX.Editor.load('ahx/Jazz_NL/06.ahx');
 btn1.onclick=()=>AHX.Song.LoadSong('ahx/Doh/dreams-odyssee.ahx');
+
+/*
 btn2.onclick=function(){
     AHX.Song.LoadSong('ahx/MortimerTwang/amanda.ahx', ()=>AHX.Editor.play());
 }
@@ -26,6 +28,7 @@ btn4.onclick=function(){
     AHX.Song.LoadSong('ahx/JazzCat/rainmaking.ahx',()=>AHX.Editor.play());
 }
 */
+
 btnShuffle.onclick=()=>shuffle();
 
 btnPlay.onclick=()=>AHX.Master.Play();
@@ -103,6 +106,7 @@ btnInstrAdd.onclick=()=>{
     let I=AHXInstrument();
     I.Name='New';
     AHX.Song.Instruments.push(I);
+    AHX.Song.InstrumentNr=AHX.Song.Instruments.length;//todo
 }
 
 btnInstrSave.onclick=()=>{
@@ -213,29 +217,28 @@ function saveAsJson(fn){
 
 async function shuffle() {
 
-    //https://twitter.com/Steve8708/status/1612907638957932544
-    /*
-    const url=new URL('https://builder.io')
-    const url=new URL('/ctrl.php', 'https://builder.io')
-    url.searchParams.set("do","fo");
-    const res=await fetch(url);
-    */
-
-    //const currentUrl=new URL(location.href);
-
+  
+    AHX.Master.Stop();
+    
     const response = await fetch('shuffle.php');
     const json = await response.json();
     console.log('shuffle()', json.filename); 
   
     AHX.Song = new AHXSong();
     AHX.Song.LoadSong(json.filename, function() { // asynchronously load a AHX song into memory
+        //reset cursors
+        AHX.Master.Output.Player.PosNr=0;
+        AHX.Master.Output.Player.NoteNr=0;
+        songEditor.cursor.init();
+        phraseEditor.cursor.init();
+        
         //AHX.play();
         //AHX.optimize();
         AHX.optimizeUnusedInstruments();
         AHX.trimSong();//delete empty end-parts
 
         console.log("Loaded and ready to play!", AHX.Song);
-
+        document.getElementById('screen').focus();
         AHX.Master.Play(AHX.Song);
     });
 }
