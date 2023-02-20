@@ -54,7 +54,7 @@ const instrumentEditor={
         A.pos(25, 0).write("[INSTR #"+this.instnum+"]",1);
 
         let cur=instrumentEditor.cursor;
-        A.pos(35, 0).write("X="+cur.x,1).write("/Y="+cur.y,1);
+        A.pos(35, 0).write("X"+cur.x,1).write("/Y"+cur.y,1);
 
 
         A.pos(0,2).invert(false).write("INSTRUMENTS",15);
@@ -215,11 +215,11 @@ const instrumentEditor={
             A.write(Entry.Waveform);//Waveform
             A.put(66);        
             A.write(Entry.FX[0]); //FX1
-            let hex=Entry.FXParam[0].toString(16);
+            let hex=Entry.FXParam[0].toString(16).toUpperCase();
             A.write(String(hex).padStart(2,'0'));//PARAM
             A.put(66);        
             A.write(Entry.FX[1]); //FX2
-            hex=Entry.FXParam[1].toString(16);
+            hex=Entry.FXParam[1].toString(16).toUpperCase();
             A.write(String(hex).padStart(2,'0'));//PARAM
         }   
     },
@@ -273,7 +273,7 @@ const instrumentEditor={
                 break;
             
             case 34://pgdown - Next Inst
-                this.instnum++;
+                if(this.instnum<AHX.Song.Instruments.length-1)this.instnum++;
                 break;
 
             case 37://Left
