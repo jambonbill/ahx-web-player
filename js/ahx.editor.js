@@ -15,10 +15,7 @@ AHX Pages :
 
 AHX.Editor={
     page:0,//current Page
-    
-    //col:0,
-    //row:0,
-    //instnum:1,//Instrument(editor) number. Zero do not exist here.
+      
     
     load:function(filename){
         AHX.Song = new AHXSong();
@@ -42,10 +39,12 @@ AHX.Editor={
         this.page++;
         if(this.page>2)this.page=0;
     },
+    
+    gotoPage:function(n){}
 }
 
 
-AHX.init = function() {
+AHX.init = function(){
 	console.log('AHX.init');
     AHX.Master = AHXMaster();
     AHX.Song = new AHXSong();
@@ -61,6 +60,13 @@ AHX.newProject=function(){
     AHX.Song = new AHXSong();  
     
     AHX.Song.Name="NEW";
+    
+    //Set page 0
+    AHX.Editor.page=0;
+
+    //Reset Cursor
+    //songEditor.cursor.init();
+
     
     //Set Tempo
     AHX.Master.Output.Player.Tempo=4;//4, 5 ?
