@@ -75,7 +75,7 @@ function notePreview(){//realtime note preview
         let note=AHX.Master.Output.Player.Voices[i].TrackPeriod;//this.Voices[v].TrackPeriod
         
         if (note>0) {
-            A.pos(x+3,y+i).write(midiNoteToString(note+1));
+            A.pos(x+3,y+i).write(midiNoteToString(note-1));
         }
     }
 }

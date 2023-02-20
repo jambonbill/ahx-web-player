@@ -12,11 +12,25 @@ const instrumentEditor={
         x:0,
         y:0,
         up:function(){
-            //
+            if(this.y>0)this.y--;
         },
         down:function(){
-            //
+            this.y++;
         },
+        left:function(){
+            if(this.x>0)this.x--;
+        },
+        right:function(){
+            this.x++;
+        },
+        plus:function(){
+            //value++
+            console.log('++');
+        },
+        minus:function(){
+            //value--
+            console.log('--');
+        }
     },
 
 
@@ -34,9 +48,18 @@ const instrumentEditor={
         let A=ascii().color(11);    
         line(0,0,cols(),0,160,1);
         line(0,1,cols(),1,119,15);
-        A.pos(0,0).invert().write(AHX.songTitle().toUpperCase(),1);//TITLE    
+        A.pos(0,0).invert().write(AHX.songTitle().toUpperCase(),1);//TITLE
+        
+        //Instrument Number
+        A.pos(25, 0).write("[INSTR #"+this.instnum+"]",1);
+
+        let cur=instrumentEditor.cursor;
+        A.pos(35, 0).write("X="+cur.x,1).write("/Y="+cur.y,1);
+
+
         A.pos(0,2).invert(false).write("INSTRUMENTS",15);
-        //A.invert(false);
+        
+        
     },
 
     list:function(){
@@ -45,8 +68,9 @@ const instrumentEditor={
         // List instruments
         for(let i=1;i<45;i++){
             let inst=AHX.Song.Instruments[i];
+            
             if (!inst) {
-                A.pos(0,i+1).write('--').put(66);   
+                //A.pos(0,i+1).write('--').put(66);   
                 continue;
             }
             
@@ -273,8 +297,8 @@ const instrumentEditor={
             case 46://suppr
                 this.cursor.suppr();break;        
 
-            //case 107:this.cursor.plus();break;
-            //case 109:this.cursor.minus();break;
+            case 107:this.cursor.plus();break;
+            case 109:this.cursor.minus();break;
 
             default:
              console.log('instr.key',c);

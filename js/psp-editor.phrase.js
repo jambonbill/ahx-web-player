@@ -80,6 +80,9 @@ const phraseEditor={
             this.w=3;
             this.h=AHX.Song.TrackLength-1;
         },
+        copy(){
+            console.log("cursor.copy",this);
+        },
         plus:function(){
             let step=AHX.Song.Tracks[phraseEditor.phraseNumber][this.y];
             switch(this.x){
@@ -247,6 +250,8 @@ const phraseEditor={
             A.invert(this.cursor.hit(1,i));
             if(step.Instrument==0){
                 A.write("--");//No instrument - [1]
+            }else if(step.Instrument>AHX.Song.InstrumentNr){
+                A.write(String(step.Instrument).padStart(2, '0'),2);//Instrumentnot found
             }else{
                 A.write(String(step.Instrument).padStart(2, '0'));//Instrument    
             }
@@ -355,12 +360,29 @@ const phraseEditor={
             console.log("FKEY");
         }
 
+        if(keyCTRL()){
+            switch(c){
+                case 65://A                
+                    this.cursor.selectAll();
+                    break;
+
+                case 67://C              
+                    console.log("CTRL+C");
+                    this.cursor.copy();
+                    break;
+            }
+            return;
+        }
         
         switch(c){
 
             case 8://backspace
                 //set to 0 and go back one step (TODO)
                 this.cursor.backspace();
+                break;
+
+            case 13://return
+                AHX.Editor.play();
                 break;
 
             case 33://pgup - Previous phrase
@@ -401,11 +423,7 @@ const phraseEditor={
                 break;        
 
 
-            case 65://A
-                if(keyCTRL()){
-                    this.cursor.selectAll();
-                }
-                break;
+
 
             //+/-
             case 107:this.cursor.plus();break;
