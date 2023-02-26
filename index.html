@@ -3,8 +3,6 @@
 <head>
     <meta charset="utf-8">
     <title>PSP-AHX Editor</title>
-    <script src=js/ahx.js></script>
-    <script src="http://editor.petscii.localhost/js/psp-lib.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -13,9 +11,10 @@
 <br />
 File:
 
-<!--
+
 <button type=button id=btn0>0</button>
 <button type=button id=btn1>1</button>
+<!--
 <button type=button id=btn2>2</button>
 <button type=button id=btn3>3</button>
 <button type=button id=btn4>4</button>
@@ -56,7 +55,7 @@ Instrument:
 <button type=button id=btnInstrAdd>Add instrument</button>
 <button type=button id=btnInstrClear>Clear instrument</button>
 <button type=button id=btnInstrSave>Save instrument</button>
-<input type="file" id="loadInstrument" accept="*.json">
+<input type="file" id="loadInstrument" accept="*.json" multiple="multiple">
 <hr />
 
 <button type=button id=btnFullScreen>FullScreen</button>
@@ -65,10 +64,15 @@ Instrument:
 </body>
 
 
-<script type="text/javascript" src="js/ahx.editor.js"></script>
-<script type="text/javascript" src="js/psp-editor.instruments.js"></script>
-<script type="text/javascript" src="js/psp-editor.phrase.js"></script>
-<script type="text/javascript" src="js/psp-editor.song.js"></script>
-<script type="text/javascript" src="js/psp-editor.keyboard.js"></script>
-<script type="text/javascript" src="js/psp-editor.js"></script>
-<script type="text/javascript" src="js/buttons.js"></script>
+<script type="text/javascript" src=js/ahx.js></script>
+<script type="text/javascript" src="http://editor.petscii.localhost/js/psp-lib.js" defer></script>
+<script type="text/javascript" src="js/psp-editor.instruments.js" defer></script>
+<script type="text/javascript" src="js/psp-editor.wavetable.js" defer></script>
+<script type="text/javascript" src="js/psp-editor.phrase.js" defer></script>
+<script type="text/javascript" src="js/psp-editor.song.js" defer></script>
+<script type="text/javascript" src="js/psp-editor.config.js" defer></script>
+<script type="text/javascript" src="js/psp-editor.splash.js" defer></script>
+<script type="text/javascript" src="js/psp-editor.keyboard.js" defer></script>
+<script type="text/javascript" src="js/psp-editor.js" defer></script>
+<script type="text/javascript" src="js/ahx.editor.js" defer></script>
+<script type="text/javascript" src="js/buttons.js" defer></script>

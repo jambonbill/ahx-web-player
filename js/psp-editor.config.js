@@ -1,5 +1,6 @@
-//PSP-AHX Splash screen
-const splash={
+// PSP-AHX Config/Tool screen
+
+const config={
    
     cursor:{
         x:0,//track
@@ -41,44 +42,44 @@ const splash={
     main:function(){
         frame().clear();
         this.navbar();
-        this.logo();
+        this.params();
     },
 
     navbar:function(){
         let A=ascii().color(15);
-    
         line(0,0,cols(),0,160,1);
         line(0,1,cols(),1,119,15); 
-        A.pos(0,0).invert().write("PHX - PETSCII HIGHEST XPERIENCE",1);//PETSCII Highest Xperience
-       
+        A.pos(0,0).invert().write(AHX.songTitle().toUpperCase(), 1);//TITLE
     },
 
+
+    params:function(){
+        let A=ascii().color(15);
+        A.pos(0,2).write("CONFIG PAGE", 1);
+        
+        A.pos(1,4).write("NAME  : ").write(AHX.songTitle().toUpperCase(),1);
+        //
+        A.pos(1,6).write("TRKLEN: ").write(AHX.Song.TrackLength,1);
+        //
+        A.pos(1,8).write("MULTI : ").write(AHX.Song.SpeedMultiplier,1);
+        //A.pos(1,7).write("TEMPO:").write();//BPM depend on song
+        
+    },
    
 
-    logo:function(){        
-        let A=ascii().color(15);
-        A.pos(2,2).write("AHX SPLASH");
-    },
 
-    
-    
-    _pressedKeys:{},
     
     keydown:function(ev){
         let c = ev.which;
-        
-        this._pressedKeys[c] = true;//capture special keys
-        let SHIFT=this._pressedKeys[16];
-        let CTRL=this._pressedKeys[17];
-        let ALT =this._pressedKeys[18];
-        
+           
         switch (c) {
-          
-            //case 37://left
-            
+
+            case 37://left
+                break;
+                
             case 39://right
                 if(keyALT()){
-                    AHX.Editor.gotoPage(1);
+                    AHX.Editor.gotoPage(2);
                     return;
                 }
                 //this.cursor.right();
@@ -90,20 +91,12 @@ const splash={
             
             case 40:
                 //this.cursor.down();
-                break;        
-            
-
-
+                break; 
+          
             default:
                 console.log("key",c);
                 break;
-
         }      
         
-    },
-
-    keyup:function(ev){
-        //todo release pressed keys
     }
-
 }

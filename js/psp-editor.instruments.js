@@ -1,21 +1,67 @@
-//PSP-AHX - Instruments
-const instrumentEditor={
+//PSP-AHX - Instruments Editor
 
+const itms=[];
+//itms.push(["NAME","key",yposition]);
+
+// GLOBAL
+itms.push(["VOLUME","I.Volume",4]);
+itms.push(["WAVELEN","I.WaveLength",5]);
+// Envelope
+itms.push(["ATTACK","E.aFrames",9]);
+itms.push(["VOLUME","E.aVolume",10]);
+itms.push(["DECAY","E.dFrames",11]);
+itms.push(["VOLUME","E.dVolume",12]);
+itms.push(["SUSTAIN","E.sFrames",13]);
+itms.push(["RELEASE","E.rFrames",14]);
+itms.push(["VOLUME","E.rVolume",15]);
+
+// Vibrato/Pitch.modulation
+itms.push(["DELAY","I.VibratoDelay",19]);
+itms.push(["DEPTH","I.VibratoDepth",20]);
+itms.push(["SPEED","I.VibratoSpeed",21]);
+
+// Square Modulation
+itms.push(["LOWER","I.SquareLowerLimit",25]);
+itms.push(["UPPER","I.SquareUpperLimit",26]);
+itms.push(["S.SPD","I.SquareSpeed",27]);
+//A.pos(x,25).write("LOWER  ").write(String(I.SquareLowerLimit).padStart(3, '0'),15);//I.SquareLowerLimit
+//A.pos(x,26).write("UPPER  ").write(String(I.SquareUpperLimit).padStart(3, '0'),15);//I.SquareUpperLimit
+//A.pos(x,27).write("S.SPD  ").write(String(I.SquareSpeed).padStart(3, '0'),15);//I.SquareSpeed
+
+// Filter
+itms.push(["LOWER","I.FilterLowerLimit",31]);
+itms.push(["UPPER","I.FilterUpperLimit",32]);
+itms.push(["F.SPD","I.FilterSpeed",33]);
+//A.pos(x,31).write("LOWER  ").write(String(I.FilterLowerLimit).padStart(3, '0'),15);//I.FilterLowerLimit
+//A.pos(x,32).write("UPPER  ").write(String(I.FilterUpperLimit).padStart(3, '0'),15);//I.FilterUpperLimit
+//A.pos(x,33).write("F.SPD  ").write(String(I.FilterSpeed).padStart(3, '0'),15);//I.FilterSpeed
+
+
+const instrumentEditor={
 
     instnum:1,//current Instrument
     
-    setInstrument:function(n){
-        this.instnum=n;//controls later
+    init:function(){
+        this.instnum=1;
+        this.cursor.init();
+    },
+
+    setInstrument:function(n){//set current inst number
+        this.instnum=n;//todo controls later
     },
 
     cursor:{
         x:0,
         y:0,
+        init:function(){
+            this.x=0;
+            this.y=0;
+        },
         up:function(){
             if(this.y>0)this.y--;
         },
         down:function(){
-            this.y++;
+            if(this.y<17)this.y++;
         },
         left:function(){
             if(this.x>0)this.x--;
@@ -25,23 +71,25 @@ const instrumentEditor={
         },
         plus:function(){
             //value++
-            console.log('++');
+            let itm=itms[this.y];
+            console.log('++',itm[0]);
+            instrumentEditor.setValue(this.y,1);
         },
         minus:function(){
             //value--
-            console.log('--');
+            let itm=itms[this.y];
+            console.log('--',itm[0]);
+            instrumentEditor.setValue(this.y,-1);
         }
     },
-
-
     
     main:function(){
         frame().clear();
         this.navbar();
         this.list();
         this.editor();
-        //this.plist();
-        this.help();
+        this.wavetable();
+        //this.help();
     },
 
     navbar:function(){        
@@ -88,8 +136,8 @@ const instrumentEditor={
             }        
         }
     },
-
-    editor:function(){
+    /*
+    editor:function(){//old version
 
         //fix instnum out of range
         if(this.instnum>AHX.Song.Instruments.length-1){
@@ -135,6 +183,7 @@ const instrumentEditor={
 
         // Vibrato
         A.pos(x,17).write("PITCH.MOD" ,14);
+ 
         A.pos(x,18).write("----------",11);
         A.pos(x,19).write("DELAY  ").write(String(I.VibratoDelay).padStart(3, '0'),15);//I.VibratoDelay
         A.pos(x,20).write("DEPTH  ").write(String(I.VibratoDepth).padStart(3, '0'),15);//I.VibratoDepth
@@ -156,9 +205,62 @@ const instrumentEditor={
 
         this.plist();
     },
+    */
+    
+    editor:function(){
+        
+        //main instrument editor
+        let A=ascii().color(12);         
+        
+        //x position
+        let x1=25;
+        let x2=35;
+
+        //GROUPS
+        A.pos(x1, 2).write("GLOBAL",14);
+        A.pos(x1, 7).write("ENVELOPE  ",14);
+        A.pos(x1,17).write("PITCH.MOD" ,14);
+        A.pos(x1,23).write("SQUARE.MOD",14);
+        A.pos(x1,29).write("FILTER    ",14);
+
+        let I=AHX.Song.Instruments[this.instnum];
+        if(!I)return;
+        let E=null;//Envelope
+        if(I&&I.Envelope)E=I.Envelope;
+
+
+        itms.forEach(function(itm,i){
+            let selected=false;
+            if(i==instrumentEditor.cursor.y)selected=1;
+            // Property name
+            A.pos(x1,itm[2]).write(itm[0],selected);
+            
+            A.invert(i==instrumentEditor.cursor.y);
+            
+            // Value
+            let val=eval(itm[1]);
+            A.pos(x2,itm[2]).write(val,1);
+
+            A.invert(false);
+        });
+    },
+
+    setValue:function(y,amount){
+        let I=AHX.Song.Instruments[this.instnum];
+        if(!I)return;
+        let E=null;//Envelope
+        if(I&&I.Envelope)E=I.Envelope;
+        
+        // Value
+        let itm=itms[y];
+        let val=eval(itm[1]);
+        //val+=amount;//add amount
+        eval(itm[1] + "+="+amount);//ca marche mais c'est crade. il faudrait aussi observer les limites
+        //x+=amount;//add amount
+    },
 
     
-    plist:function(){
+    wavetable:function(){//wavetable
         //Current instrument sequence/steps
         let x=40;
         let I=AHX.Song.Instruments[this.instnum];
@@ -175,11 +277,11 @@ const instrumentEditor={
         let A=ascii().color(11); 
         
         A.pos(x,2);
-        A.write("STP",1).put(66,11);
-        A.write("NOTE",1).put(66);
-        A.write("W",1).put(66);
-        A.write("FX1",1).put(66);
-        A.write("FX2",1);
+        A.write("STP").put(66,11);
+        A.write("NOTE").put(66);
+        A.write("W").put(66);
+        A.write("FX1").put(66);
+        A.write("FX2");
         A.pos(x,3).write("---");
         A.put(91);
         A.write("----");
@@ -194,15 +296,6 @@ const instrumentEditor={
             //I.PList.Entries.length
             let Entry=I.PList.Entries[i];
             if(!Entry){
-                A.pos(x,i+3).write("---")
-                A.put(66);
-                A.write("--- ");
-                A.put(66);
-                A.write("-");
-                A.put(66);
-                A.write("---");
-                A.put(66);
-                A.write("---");
                 continue;
             }
             A.pos(x,i+4).write(String(i).padStart(3, '0'));        
@@ -231,42 +324,26 @@ const instrumentEditor={
         
         //Vertical line
         line(x-1,2,x-1,44,66,12);
-
-        //Waveforms
-        A.pos(x,y+0).write("WAVEFORMS",1);
-        A.pos(x,y+1).write("-----------");
-        A.pos(x,y+2).write("0:HOLD WAVE");
-        A.pos(x,y+3).write("1:TRIANGLE ");
-        A.pos(x,y+4).write("2:SAWTOOTH ");
-        A.pos(x,y+5).write("3:SQUARE   ");
-        A.pos(x,y+6).write("4:WH.NOISE ");
-        A.pos(x,y+7).write("*:FIXED    ");
-        
-        //Commands
-        A.pos(x,y+10).write("COMMANDS",1);
-        A.pos(x,y+11).write("-----------");
-        A.pos(x,y+12).write("0:INIT.FILT");
-        A.pos(x,y+13).write("1:SLIDE UP ");
-        A.pos(x,y+14).write("2:SLIDE DN ");
-        A.pos(x,y+15).write("3:INIT SQR ");
-        A.pos(x,y+16).write("4:TOGGLEMOD");
-        A.pos(x,y+17).write("5:JUMP2STEP");
-        A.pos(x,y+18).write("C:VOLUME   ");
-        A.pos(x,y+19).write("F:SPEED    ");
         
         //Keyboard
-        A.pos(x,y+24).write("KEYBOARD",1);
-        A.pos(x,y+25).write("-----------");
-        A.pos(x,y+26).write("PGUP:PREV  ");
-        A.pos(x,y+27).write("PGDN:NEXT  ");
+        A.pos(x,y+0).write("KEYBOARD",1);
+        A.pos(x,y+1).write("-----------");
+        A.pos(x,y+2).write("PGUP:PREV  ");
+        A.pos(x,y+3).write("PGDN:NEXT  ");
+        A.pos(x,y+4).write("F2  :NEW INST");
         
     },
-
 
     keydown:function(ev){//keyboard events are forwarded here when displayed
         let c = ev.which;
         //console.log(ev);
-        
+        if(keyCTRL()){
+            console.log("CTRL+",c);
+            ev.preventDefault();
+            return;
+        }
+
+
         switch(c){
             case 33://pgup - Previous Inst
                 if(this.instnum>1)this.instnum--;
@@ -278,14 +355,14 @@ const instrumentEditor={
 
             case 37://Left
                 if(keyALT()){
-                    AHX.Editor.page=1;
+                    AHX.Editor.gotoPage(3);
                     return;
                 }
                 break;
             
             case 39://right                
                 if(keyALT()){
-                    //AHX.Editor.page=2;
+                    AHX.Editor.gotoPage(5);
                     return;
                 }                
                 break;
@@ -299,6 +376,11 @@ const instrumentEditor={
 
             case 107:this.cursor.plus();break;
             case 109:this.cursor.minus();break;
+
+            case 113://F2
+                //new instrument
+                AHX.newInstrument();
+                break; 
 
             default:
              console.log('instr.key',c);

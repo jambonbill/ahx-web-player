@@ -1524,9 +1524,12 @@ function AHXMasterWebKit(output) {
 	}
 
 	this.Continue=function(){
-		if(!this.AudioContext) 
-			this.AudioContext = new AudioContext();
 		
+		if(!this.AudioContext){
+			console.log('new AudioContext()'); 
+			this.AudioContext = new AudioContext();
+		}
+
 		this.Output.Init(this.AudioContext.sampleRate, 16);
 		//this.bufferSize = 8192;
 		this.bufferSize = 2048;//Sticky ! (jambon chan)
@@ -1578,7 +1581,11 @@ function AHXMasterWebKit(output) {
 	}
 
 	this.Stop = function() {
-		this.AudioNode.disconnect();
+		console.log('Stop!');
+		if(this.AudioNode){
+			this.AudioNode.disconnect();	
+		}
+		
 		this._playing=false;
 	}
 

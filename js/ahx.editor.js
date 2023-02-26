@@ -2,18 +2,21 @@
 var AHX={};
 
 /* 
-AHX Pages :
+PSP-AHX Pages :
 --------------
 0 - Splash
 1 - Config
 2 - Main/Song
 3 - Phrase
 4 - Instrument - Think instrument manager !
-5 - Save
+5 - Wavetable
+
 6 - Load / Diskop
+7 - Save
 */
 
 AHX.Editor={
+    
     page:0,//current Page
       
     
@@ -33,14 +36,21 @@ AHX.Editor={
         console.log("stop");
         AHX.Master.Stop();
     },
-
+    /*
     pageToggle:function(){
         //console.log('pageToggle');
         this.page++;
         if(this.page>2)this.page=0;
     },
-    
-    gotoPage:function(n){}
+    */
+   
+    gotoPage:function(n){
+        console.clear();
+        console.log("Page #"+n);
+        this.page=n;
+        //save page to localstorage
+        localStorage.setItem('AHXPage', n);
+    }
 }
 
 
@@ -63,7 +73,11 @@ AHX.newProject=function(){
     
     //Set page 0
     AHX.Editor.page=0;
-
+    
+    songEditor.init();
+    phraseEditor.init();
+    instrumentEditor.init();
+    
     //Reset Cursor
     //songEditor.cursor.init();
 
@@ -113,8 +127,7 @@ AHX.newProject=function(){
     I.SquareUpperLimit=63;
     I.SquareSpeed=4;
     I.VibratoDelay=14;
-    I.VibratoDepth=2;
-    
+    I.VibratoDepth=2;    
     I.Envelope.aFrames=1;
     I.Envelope.aVolume=64;
 
@@ -133,8 +146,50 @@ AHX.newProject=function(){
         ]
     }
     AHX.Song.Instruments.push(I);//this one is useable
+    /*
+    I.WaveLength=1;
+    AHX.Song.Instruments.push({...I});//this one is useable
+    I.WaveLength=2;
+    AHX.Song.Instruments.push({...I});//this one is useable
+    */
+    //
+    AHX.Song.InstrumentNr=AHX.Song.Instruments.length-1;//correct inst.pointer
+    
 }
 
+
+AHX.newInstrument=function(){
+    console.log('AHX.newInstrument');
+    let I=AHXInstrument();
+    I.Name='New';
+    I.Volume=64;
+    I.WaveLength=3;
+    I.SquareLowerLimit=16;
+    I.SquareUpperLimit=63;
+    I.SquareSpeed=4;
+    I.VibratoDelay=14;
+    I.VibratoDepth=2;    
+    I.Envelope.aFrames=1;
+    I.Envelope.aVolume=64;
+
+    I.Envelope.dFrames=1;
+    I.Envelope.dVolume=64;
+
+    I.Envelope.sFrames=1;
+    I.Envelope.rFrames=1;
+    I.Envelope.rVolume=64;
+    I.PList={
+        Speed:4,
+        Length:2,
+        Entries:[
+            {"Note":1,"Fixed":0,"Waveform":2,"FX":[0,0],"FXParam":[0,0]},
+            {"Note":0,"Fixed":0,"Waveform":0,"FX":[0,0],"FXParam":[0,0]}
+        ]
+    }
+    AHX.Song.Instruments.push(I);//this one is useable
+    AHX.Song.InstrumentNr=AHX.Song.Instruments.length-1;//correct inst.pointer
+    
+}
 
 //Envelope":{"aFrames":1,"aVolume":64,"dFrames":1,"dVolume":64,"sFrames":1,"rFrames":1,"rVolume":64},"
 //PList":{"Speed":4,"Length":2,"Entries":[]}}'
@@ -317,6 +372,14 @@ AHX.restore=function(){
         console.log('ready to play!');
     }else{
         console.error("Error loading json");
+    }
+
+    //get last page
+    let page=+localStorage.getItem('AHXPage');
+    if (page) {
+        console.log("Restore page #"+page);
+        //AHX.Editor.gotoPage(page);
+        //AHX.Editor.page=page;
     }
 }
 

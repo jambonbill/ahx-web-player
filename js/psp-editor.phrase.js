@@ -6,6 +6,14 @@ const phraseEditor={
     command:0,  //current command
     octave:2,   //current octave
             
+    init:function(){
+        this.phraseNumber=0;//current track    
+        this.instrument=0;//current instr.
+        this.command=0;  //current command
+        this.octave=2;
+        this.cursor.init();
+    },
+
     setPhrase:function(n){
         this.phraseNumber=n;
     },
@@ -83,32 +91,40 @@ const phraseEditor={
         copy(){
             console.log("cursor.copy",this);
         },
-        plus:function(){
-            let step=AHX.Song.Tracks[phraseEditor.phraseNumber][this.y];
-            switch(this.x){
-                case 0:step.Note++;break;
-                case 1:
-                    step.Instrument++;
-                    phraseEditor.setInstrument(step.Instrument);
-                    break;
-                case 2:step.FX++;break;
-                case 3:step.FXParam++;break;
-            }
-        },
-        minus:function(){
-            let step=AHX.Song.Tracks[phraseEditor.phraseNumber][this.y];
-            switch(this.x){
-                case 0:if(step.Note>0)step.Note--;break;
-                case 1:
-                    if(step.Instrument>0){
-                        step.Instrument--;
+        plus:function(n){
+            if(!n)n=1;
+            this.coords().forEach((c)=>{
+                let step=AHX.Song.Tracks[phraseEditor.phraseNumber][c.y];
+                switch(c.x){
+                    case 0:step.Note+=n;break;
+                    case 1:
+                        step.Instrument+=n;
                         phraseEditor.setInstrument(step.Instrument);
-                    }
-                    break;
-                case 2:if(step.FX>0)step.FX--;break;
-                case 3:if(step.FXParam>0)step.FXParam--;break;
-            }
+                        break;
+                    case 2:step.FX+=n;break;
+                    case 3:step.FXParam+=n;break;
+                }    
+            });
+            
         },
+        minus:function(n){
+            if(!n)n=1;
+            this.coords().forEach((c)=>{
+                let step=AHX.Song.Tracks[phraseEditor.phraseNumber][c.y];
+                switch(c.x){
+                    case 0:if(step.Note>0)step.Note-=n;break;
+                    case 1:
+                        if(step.Instrument>0){
+                            step.Instrument-=n;
+                            phraseEditor.setInstrument(step.Instrument);
+                        }
+                        break;
+                    case 2:if(step.FX>0)step.FX-=n;break;
+                    case 3:if(step.FXParam>0)step.FXParam-=n;break;
+                }
+            });
+        },
+
         suppr:function(){
             console.log('suppr');   
             this.coords().forEach((c)=>{
@@ -129,7 +145,7 @@ const phraseEditor={
             if (!isNaN(newnote)) {
                 step.Note=newnote;
                 step.Instrument=phraseEditor.instrument;
-                this.y++;
+                if(this.y<AHX.Song.TrackLength-1)this.y++;
             }
         },
         setValue:function(val){
@@ -153,7 +169,7 @@ const phraseEditor={
             let step=AHX.Song.Tracks[phraseEditor.phraseNumber][this.y];
             step.Note=0;
             step.Instrument=0;
-            this.y--;  
+            if(this.y>0)this.y--;  
         },
         hit:function(x,y){
             if(x >= this.x && x <= this.x+this.w && y >= this.y && y <=this.y+this.h){
@@ -198,13 +214,11 @@ const phraseEditor={
         line(0,0,cols(),0,160,1);
         line(0,1,cols(),1,119,15);       
         A.pos(0,0).invert().write(AHX.songTitle().toUpperCase(),1);//TITLE
-
         A.invert(false);        
         A.pos(0,2).write("PHRASE:",1);        
         A.pos(0,3).write(" #"+this.phraseNumber,1).write("/" + (AHX.Song.Tracks.length-1), 15);        
         
         //A.pos(23,0).write("KEYB.OCTAVE #"+this.cursor.octave,1);        
-        
         //Current SONG Position 
         A.pos(74,0).write(String(AHX.Master.Output.Player.PosNr).padStart(3,'0')+".").write(AHX.Master.Output.Player.NoteNr);
     },
@@ -220,11 +234,8 @@ const phraseEditor={
         
         for(let i=0;i<TRL;i++){//Track Length
             
-
-            let y=i+2;
-            
+            let y=i+2;            
             A.invert(false);
-
             A.pos(9,y).write(String(i).padStart(3, '0'),11);//000
             
             let track=AHX.Song.Tracks[pnum];
@@ -238,8 +249,6 @@ const phraseEditor={
                 A.put(32,1);//space
             }
             
-            
-            
             //if(this.cursor.y==i && this.cursor.x==0)A.invert(true);
             A.invert(this.cursor.hit(0,i));
             A.write(midiNoteToString(step.Note-1));//Note  [0]
@@ -249,8 +258,8 @@ const phraseEditor={
             //if(this.cursor.y==i && this.cursor.x==1)A.invert(true);
             A.invert(this.cursor.hit(1,i));
             if(step.Instrument==0){
-                A.write("--");//No instrument - [1]
-            }else if(step.Instrument>AHX.Song.InstrumentNr){
+                A.write("--",11);//No instrument - [1]
+            }else if(step.Instrument>AHX.Song.InstrumentNr+1){
                 A.write(String(step.Instrument).padStart(2, '0'),2);//Instrumentnot found
             }else{
                 A.write(String(step.Instrument).padStart(2, '0'));//Instrument    
@@ -263,16 +272,16 @@ const phraseEditor={
             //if(this.cursor.y==i && this.cursor.x==2)A.invert(true);
             A.invert(this.cursor.hit(2,i));
             if(fx==0){
-                A.write('-');
+                A.write('-',11);
             }else{
-                A.write(fx); //fx command 0-F - [2]
+                A.write(fx,14); //fx command 0-F - [2]
             }
             A.invert(false);
 
             //if(this.cursor.y==i && this.cursor.x==3)A.invert(true);
             A.invert(this.cursor.hit(3,i));
             if(fxParam==0){
-                A.write('--'); //Fx Param 00-FF     - [3]       
+                A.write('--',11); //Fx Param 00-FF     - [3]       
             }else{
                 A.write(String(fxParam).padStart(2, '0')); //Fx Param 00-FF            
             }
@@ -306,7 +315,7 @@ const phraseEditor={
         let A=ascii().color(11).pos(x,2).write("COMMANDS");
         A.pos(x, 3).write("--------------");
         for(let i=0;i<16;i++){
-            A.pos(x, 4+i).write(i.toString(16).toUpperCase() + " - " + cmds[i]);    
+            A.pos(x, 4+i).write(i.toString(16).toUpperCase(),1).write(" " + cmds[i]);    
         }
         /*
         A.pos(x, 4).write("0 - NONE");
@@ -352,9 +361,7 @@ const phraseEditor={
     
     keydown:function(ev){
         
-        let c = ev.which;
-
-        
+        let c = ev.which;       
         
         if(c>=112&&c<=115){//F1-F4
             console.log("FKEY");
@@ -362,6 +369,24 @@ const phraseEditor={
 
         if(keyCTRL()){
             switch(c){
+                
+                case 37://Left
+                    this.cursor.minus(1); 
+                    break;
+            
+                case 39:                
+                    this.cursor.plus(1);
+                    break;
+            
+                case 38:
+                    this.cursor.plus(10);
+                    break;
+                
+                case 40:
+                    this.cursor.minus(10);
+                    break;   
+
+
                 case 65://A                
                     this.cursor.selectAll();
                     break;
@@ -369,7 +394,9 @@ const phraseEditor={
                 case 67://C              
                     console.log("CTRL+C");
                     this.cursor.copy();
-                    break;
+                    break;  
+
+
             }
             return;
         }
@@ -399,7 +426,7 @@ const phraseEditor={
             
             case 37://Left
                 if(keyALT()){
-                    AHX.Editor.page=0;
+                    AHX.Editor.gotoPage(2);
                     return;
                 }
                 this.cursor.left(); 
@@ -408,7 +435,8 @@ const phraseEditor={
             case 39:
                 
                 if(keyALT()){
-                    AHX.Editor.page=2;
+                    //forward instrument number
+                    AHX.Editor.gotoPage(4);
                     return;
                 }
                 

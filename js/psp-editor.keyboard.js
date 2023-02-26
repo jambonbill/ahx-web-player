@@ -109,11 +109,14 @@ var initKeyboard=function(){
 		}
 		
 		//console.log(c);
-		//Forward keys to the current page
+		//Forward keys to the right page
 		switch(AHX.Editor.page){			
-			case 0:songEditor.keydown(ev);	break;
-			case 1:phraseEditor.keydown(ev);break;
-			case 2:instrumentEditor.keydown(ev);break;
+			case 0:splash.keydown(ev);	break;
+			case 1:config.keydown(ev);	break;
+			case 2:songEditor.keydown(ev);	break;
+			case 3:phraseEditor.keydown(ev);break;
+			case 4:instrumentEditor.keydown(ev);break;
+			case 5:wavetableEditor.keydown(ev);break;
 		}		
 
 	});

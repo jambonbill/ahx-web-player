@@ -217,9 +217,9 @@ function saveAsJson(fn){
 
 async function shuffle() {
 
-  
-    AHX.Master.Stop();
-    
+    console.clear();
+    console.log('shuffle()');
+    AHX.Master.Stop();  
     const response = await fetch('shuffle.php');
     const json = await response.json();
     console.log('shuffle()', json.filename); 

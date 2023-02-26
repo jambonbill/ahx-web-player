@@ -14,31 +14,45 @@ let c=new Uint8Array(8);
     c[7]=0b00000000;    
     charset().chr(93,c);//Arrow
 
+/*
+const pages={
+    splash:0,
+    song:1,
+    phrase:2,
+    instrument:3,
+    files:4,
+    help:5,//keyboard page
+    config:6,//Settings: buffer size, keyboard, colors, etc
+}
+*/
+
 function main(){
 	//Main 
+    //if(!AHX)return;
     
-
-
     switch(AHX.Editor.page){
         
-        case 0:songEditor.main();break;
-        case 1:phraseEditor.main();break;
-        case 2:instrumentEditor.main(); break;
+        //case 0:splash.main();break;
+        case 1:config.main();break;
+        case 2:songEditor.main();break;
+        case 3:phraseEditor.main();break;
+        case 4:instrumentEditor.main(); break;
+        case 5:wavetableEditor.main(); break;
         
         default:
-            //
+            splash.main();
             break;
     }
     
     if(0){
         bufferPreview();
-    
     }
     
-    if(AHX.Editor.page<2){
+    if(AHX.Editor.page==2){
         minimenu();
         notePreview();
     }
+    
     debug();    
 }
 
@@ -102,7 +116,11 @@ function debug(){
     if(keySHIFT())A.pos(6,44).write("[SHIFT]");
     if(keyALT())A.pos(13,44).write("[ALT]");
     
-    //colors
+    //PAGE
+    A.invert(1);
+    A.pos(52,0).write("PAGE#").write(AHX.Editor.page);
+
+    //color palette
     for(let i=0;i<16;i++){
         let p=cols()-22;
         poke(p+i,[250,i]);
@@ -118,14 +136,6 @@ function midiNoteToString(n){
     return notes[note]+oct;
 }
 
-const pages={
-    splash:0,
-    song:1,
-    phrase:2,
-    instrument:3,
-    files:4,
-    help:5,//keyboard page
-    config:6,//Settings: buffer size, keyboard, colors, etc
-}
 
 hook(main);
+document.getElementById('screen').focus();
