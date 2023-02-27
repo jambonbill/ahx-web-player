@@ -312,29 +312,11 @@ const phraseEditor={
         ];
         
         let x=40;
-        let A=ascii().color(11).pos(x,2).write("COMMANDS");
+        let A=ascii().color(11).pos(x,2).write("COMMANDS",14);
         A.pos(x, 3).write("--------------");
         for(let i=0;i<16;i++){
-            A.pos(x, 4+i).write(i.toString(16).toUpperCase(),1).write(" " + cmds[i]);    
+            A.pos(x, 4+i).write(i.toString(16).toUpperCase(),14).write(" ").write(cmds[i],12);    
         }
-        /*
-        A.pos(x, 4).write("0 - NONE");
-        A.pos(x, 5).write("1 - PORTAMENTO UP");
-        A.pos(x, 6).write("2 - PORTAMENTO DOWN");
-        A.pos(x, 7).write("3 - TONE PORTAMENTO");
-        A.pos(x, 8).write("4 - SET/OVERRIDE FILTER");
-        A.pos(x, 9).write("5 - TONE PORTAMENTO + VOL SLIDE");
-        A.pos(x,10).write("6 - UNUSED");
-        A.pos(x,11).write("7 - UNUSED");
-        A.pos(x,12).write("8 - EXTERNAL TIMING");
-        A.pos(x,13).write("9 - SET SQUARE RELATION");
-        A.pos(x,14).write("A - VOLUME SLIDE");
-        A.pos(x,15).write("B - POSITION JUMP");
-        A.pos(x,16).write("C - SET VOLUME");
-        A.pos(x,17).write("D - POS.BREAK");
-        A.pos(x,18).write("E - MISC.COMMANDS");
-        A.pos(x,19).write("F - SET SPEED");
-        */
     },
 
     instruments:function(){

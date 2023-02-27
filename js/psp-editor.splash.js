@@ -1,6 +1,7 @@
 //PSP-AHX Splash screen
 const splash={
    
+    
     cursor:{
         x:0,//track
         y:0,
